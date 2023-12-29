@@ -1,6 +1,8 @@
 import Express from "express";
 import { createServer } from "http";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
+
+import { version } from "../package.json";
 
 const sockets = [];
 
@@ -14,8 +16,10 @@ const server = () => {
     io.on("connection", (socket) => {
         console.log("A user connected");
         sockets.push(socket);
+        socket.emit("version", version)
         socket.on("disconnect", () => {
             console.log("User disconnected");
+            sockets.splice(sockets.indexOf(socket), 1);
         });
     });
 

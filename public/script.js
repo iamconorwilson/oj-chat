@@ -29,7 +29,11 @@ const init = async () => {
         const socket = io();
 
         socket.on("connect", () => {
-            console.log("connected");
+            console.log("Connected");
+        });
+
+        socket.on("version", (version) => {
+            console.log(`OJ CHAT -- Version: ${version}`);
         });
 
         //on message
