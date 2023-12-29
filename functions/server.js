@@ -2,9 +2,9 @@ import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-import { version } from "../package.json";
-
 const sockets = [];
+
+const version = process.env.npm_package_version;
 
 const server = () => {
     const app = new Express();
@@ -14,12 +14,14 @@ const server = () => {
     app.use(Express.static("public"));
 
     io.on("connection", (socket) => {
-        console.log("A user connected");
         sockets.push(socket);
+        
+        console.log(`A user connected. ${sockets.length} users connected`);
         socket.emit("version", version)
         socket.on("disconnect", () => {
-            console.log("User disconnected");
             sockets.splice(sockets.indexOf(socket), 1);
+            
+            console.log(`A user disconnected. ${sockets.length} users connected`);
         });
     });
 
