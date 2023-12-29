@@ -13,4 +13,8 @@ Simple application that displays onscreen Twitch chat.
     * `"user:read:email"`
 3. Run the application using `node index.js`. The application will start on port 3000.
 
+## TODOs
+
+* Add support for 7tv emote updates without restarting application
+* Add highlighted messages
 
