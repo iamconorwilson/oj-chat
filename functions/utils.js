@@ -7,8 +7,10 @@ export const getUserColor = (displayName) => {
 
 export const debug = {
     log: (message) => {
-        if (process.env.NODE_ENV === 'development') {
-            console.log(message);
-        }
+        // THIS WOULD BE GOOD TO FIX, BUT NOT ESSENTIAL
+        // if (process.env.NODE_ENV === 'development') {
+        //     console.log(message);
+        // }
+        console.log(message);
     }
 }
