@@ -1,6 +1,6 @@
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
-import { ChatClient, toChannelName } from '@twurple/chat';
+import { ChatClient } from '@twurple/chat';
 import { promises as fs } from 'fs';
 
 import * as dotenv from 'dotenv';

@@ -1,6 +1,6 @@
 import { setupAuth } from "./auth/twitch.js";
 import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./functions/message.js";
-import { getBadgeCache, getEmoteCache, getGlobalEmoteCache, getPronounCache } from "./functions/caches.js";
+import { getBadgeCache, getEmoteCache, getPronounCache } from "./functions/caches.js";
 import { getUserColor, debug } from "./functions/utils.js";
 import { server, emit } from "./functions/server.js";
 
@@ -13,9 +13,8 @@ server();
 const { client, chat } = await setupAuth();
 
 await getBadgeCache(client);
-await getEmoteCache(process.env.TWITCH_USER_ID);
+await getEmoteCache();
 await getPronounCache();
-await getGlobalEmoteCache();
 
 chat.onMessage(async (channel, user, message, msg) => {
     
@@ -26,6 +25,8 @@ chat.onMessage(async (channel, user, message, msg) => {
     const badgeHtml = await createBadges(userInfo, client);
 
     const redemption = msg.isRedemption ? await getRedemption(msg.rewardId, client) : null;
+
+    const highlight = msg.isHighlight;
 
 
     const msgDetail = {
@@ -38,7 +39,8 @@ chat.onMessage(async (channel, user, message, msg) => {
         badges:badgeHtml,
         color: userInfo.color !== '' ? userInfo.color : getUserColor(userInfo.displayName),
         pronouns: await getPronouns(userInfo),
-        redemption: redemption
+        redemption: redemption,
+        highlight: highlight
     }
 
     debug.log(msgDetail);

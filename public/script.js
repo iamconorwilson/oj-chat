@@ -6,6 +6,12 @@ const globalData = {
     messagesLimit: 10
 };
 
+let eventQueue = [];
+
+//DOM ELEMENTS
+const container = document.getElementById("container");
+
+//INIT FUNCTION
 const init = async () => {
     //if query params
     const urlParams = new URLSearchParams(window.location.search);
@@ -37,7 +43,10 @@ const init = async () => {
         });
 
         //on message
-        socket.on("newMessage", onMsgEvent);
+        socket.on("newMessage", (msg) => {
+            eventQueue.push(msg);
+            processEventQueue();
+        });
 
         //on remove all messages from user
         socket.on("removeUserMessages", onRemoveUserMsg);
@@ -52,11 +61,13 @@ const init = async () => {
 
 };
 
-
-
-
-
-
+//FUNCTIONS
+const processEventQueue = () => {
+    if (eventQueue.length > 0) {
+        const nextEvent = eventQueue.shift();
+        onMsgEvent(nextEvent);
+    }
+}
 
 const newMessage = async (data) => {
     if (data.message.startsWith("!") && globalData.hideCommands) return;
@@ -64,7 +75,9 @@ const newMessage = async (data) => {
 
     globalData.totalMessages++;
 
-    let message = `<span class="user-message">${data.message}</span>`;
+    let highlight = data.highlight ? 'highlight' : '';
+
+    let message = `<span class="user-message ${highlight}">${data.message}</span>`;
     let user = await buildUser(data);
     
     //create div element
@@ -78,7 +91,7 @@ const newMessage = async (data) => {
     html.classList.add('message-row');
 
     //set inner html
-    html.innerHTML = `${user}${message}`;
+    html.innerHTML = user + message;
 
     return html;
 };
@@ -107,7 +120,6 @@ const onMsgEvent = async (msg) => {
     console.log(msg);
     const newMessageElement = await newMessage(msg);
 
-    const container = document.getElementById("container");
 
     if (newMessageElement === undefined) return;
 
@@ -115,15 +127,17 @@ const onMsgEvent = async (msg) => {
 
     //remove old messages
     if (globalData.totalMessages > globalData.messagesLimit) {
-        const firstMessage = document.getElementById(`msg-${globalData.totalMessages - globalData.messagesLimit}`);
+        const firstMessage = container.getElementById(`msg-${globalData.totalMessages - globalData.messagesLimit}`);
         firstMessage.remove();
     }
+
+    processEventQueue();
 }
 
 const onRemoveUserMsg = (data) => {
     const { userId } = data;
 
-    const messages = document.querySelectorAll(`[data-userId="${userId}"]`);
+    const messages = container.querySelectorAll(`[data-userId="${userId}"]`);
 
     messages.forEach(msg => {
         msg.remove();
@@ -133,15 +147,16 @@ const onRemoveUserMsg = (data) => {
 const onRemoveSingleMsg = () => {
     const { id } = data;
 
-    const message = document.querySelector(`[data-msgId="${id}"]`);
+    const message = container.querySelector(`[data-msgId="${id}"]`);
 
     message.remove();
 }
 
 const onRemoveAllMsg = () => {
-    const container = document.getElementById("container");
     container.innerHTML = '';
 }
+
+
 
 //init
 init();
