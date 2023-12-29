@@ -17,12 +17,6 @@ const init = async () => {
         css.rel = 'stylesheet';
         css.href = '/css/horizontal.css';
         document.head.appendChild(css);
-    } else {
-        //load default css
-        const css = document.createElement('link');
-        css.rel = 'stylesheet';
-        css.href = '/css/styles.css';
-        document.head.appendChild(css);
     }
 
     //load socket.io script

@@ -2,11 +2,11 @@
   "name": "oj-chat",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon --ignore data/ index.js",
+    "start": "SET NODE_ENV=production&& node app.js",
+    "dev": "SET NODE_ENV=development&& nodemon --ignore data/ app.js",
     "token": "node utils/getTwitchoAuth.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

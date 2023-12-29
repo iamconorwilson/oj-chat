@@ -160,3 +160,13 @@ span.redemption {
     top: -9999px;
     opacity: 0;
 }
+
+.zero-width-wrap {
+    position: relative;
+}
+
+.zero-width-wrap > :nth-child(2) {
+    position: absolute;
+    top: 0;
+    left: 0;
+}

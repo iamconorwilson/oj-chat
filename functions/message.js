@@ -54,22 +54,26 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
     for (let emote of emoteCache) {
         //emote name should not be within another word
         const emoteName = emote.name;
-        const emoteRegex = new RegExp(`\\b${emoteName}\\b`);
-        const match = message.match(emoteRegex);
+        const emoteRegex = new RegExp(`\\b${emoteName}\\b`, `g`);
+        const matches = [...message.matchAll(emoteRegex)];
 
-        if (match) {
+        //if no matches, continue
+        if (matches.length === 0) continue;
+
+        for (const match of matches) {
             const emoteStart = match.index
             const emoteEnd = emoteStart + emoteName.length - 1;
+            const zeroWidth = emote.isZeroWidth ? 'zero-width' : '';
             
             const emoteUrl = `https://cdn.7tv.app/emote/${emote.id}/3x.webp`;
             replacements.push({
                 start: emoteStart,
                 end: emoteEnd,
-                text: `<img class="emote" src="${emoteUrl}" alt="${emoteName}" />`
+                text: `<img class="emote ${zeroWidth}" src="${emoteUrl}" alt="${emoteName}" />`,
+                isZeroWidth: emote.isZeroWidth
             });
         }
     }
-
 
     //look through replacements and remove any that overlap
     for (let i = 0; i < replacements.length; i++) {
@@ -85,8 +89,29 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
     replacements.sort((a, b) => b.start - a.start);
 
     // Apply replacements
-    for (let {start, end, text} of replacements) {
-        message = message.slice(0, start) + text + message.slice(end + 1);
+    for (let emote of replacements) {
+
+        const { start, end, text, isZeroWidth } = emote;
+
+        let index = replacements.findIndex(r => r.start === start && r.end === end);
+
+        //if previous emote is zero width, skip
+        if (replacements[index - 1]?.isZeroWidth) {
+            message = message.slice(0, start) + message.slice(end + 1);
+            continue;
+        }
+
+        let replaceText = '';
+
+        //if emote is zero width
+        if (isZeroWidth) {
+            const nextEmote = replacements[index + 1];
+            replaceText = `<span class="zero-width-wrap">${nextEmote.text}${text}</span>`;
+        } else {
+            replaceText = text;
+        }
+
+        message = message.slice(0, start) + replaceText + message.slice(end + 1);
     }
 
     

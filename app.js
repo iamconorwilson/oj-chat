@@ -1,7 +1,7 @@
 import { setupAuth } from "./auth/twitch.js";
 import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./functions/message.js";
-import { getBadgeCache, getEmoteCache, getPronounCache } from "./functions/caches.js";
-import { getUserColor } from "./functions/utils.js";
+import { getBadgeCache, getEmoteCache, getGlobalEmoteCache, getPronounCache } from "./functions/caches.js";
+import { getUserColor, debug } from "./functions/utils.js";
 import { server, emit } from "./functions/server.js";
 
 
@@ -15,6 +15,7 @@ const { client, chat } = await setupAuth();
 await getBadgeCache(client);
 await getEmoteCache(process.env.TWITCH_USER_ID);
 await getPronounCache();
+await getGlobalEmoteCache();
 
 chat.onMessage(async (channel, user, message, msg) => {
     
@@ -23,8 +24,6 @@ chat.onMessage(async (channel, user, message, msg) => {
     const messageHtml = createMessageHtml(message, emoteOffsets, isCheer);
 
     const badgeHtml = await createBadges(userInfo, client);
-
-    console.log('Is redemption? ' + msg.isRedemption);
 
     const redemption = msg.isRedemption ? await getRedemption(msg.rewardId, client) : null;
 
@@ -42,24 +41,26 @@ chat.onMessage(async (channel, user, message, msg) => {
         redemption: redemption
     }
 
-    console.log(msgDetail);
+    debug.log(msgDetail);
 
     emit('newMessage', msgDetail);
 
 });
 
 chat.onMessageRemove((channel, messageId, msg) => {
-    console.log(messageId);
+    debug.log(messageId);
     emit('removeSingleMessage', { id: messageId });
 });
 
 chat.onTimeout(async (channel, user, duration, msg) => {
     const userId = await client.users.getUserByName(user);
+    debug.log(userId);
     emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onBan(async (channel, user, msg) => {
     const userId = await client.users.getUserByName(user);
+    debug.log(userId);
     emit('removeUserMessages', { userId: userId.id });
 });
 
