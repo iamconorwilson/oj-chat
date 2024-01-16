@@ -34,6 +34,12 @@ const init = async () => {
     script.onload = () => {
         const socket = io();
 
+        window.onerror = (message, source, lineno, colno, error) => {
+            console.error(error);
+            socket.emit('clientError', { message, source, lineno, colno, error: error.toString() });
+            return false; // Prevent the default error handling
+        };
+
         socket.on("connect", () => {
             console.log("Connected");
         });

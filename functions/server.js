@@ -17,11 +17,20 @@ const server = () => {
         sockets.push(socket);
         
         console.log(`A user connected. ${sockets.length} users connected`);
+        
         socket.emit("version", version)
+
         socket.on("disconnect", () => {
-            sockets.splice(sockets.indexOf(socket), 1);
+            const index = sockets.indexOf(socket);
+            if (index !== -1) {
+                sockets.splice(index, 1);
+            }
             
             console.log(`A user disconnected. ${sockets.length} users connected`);
+        });
+
+        socket.on("clientError", (data) => {
+            console.error(JSON.stringify(data));
         });
     });
 
