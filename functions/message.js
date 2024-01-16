@@ -152,6 +152,10 @@ export const getPronouns = async (userInfo) => {
         const pronoun = pronounCache.find(p => p.name === data[0].pronoun_id);
         return pronoun.display;
     })
+    .catch((err) => {
+        console.error(err);
+        return;
+    });
 }
 
 export const getRedemption = async (rewardId, client) => {

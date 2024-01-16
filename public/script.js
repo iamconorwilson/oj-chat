@@ -1,7 +1,7 @@
 //GLOBAL DATA
 const globalData = {
     ignoredUsers: [],
-    hideCommands: false,
+    hideCommands: true,
     totalMessages: 0,
     messagesLimit: 10
 };
@@ -72,6 +72,7 @@ const processEventQueue = () => {
 const newMessage = async (data) => {
     if (data.message.startsWith("!") && globalData.hideCommands) return;
     if (globalData.ignoredUsers.includes(data.user.displayName)) return;
+    if (container.querySelector(`[data-msgId="${data.id}"]`)) return;
 
     globalData.totalMessages++;
 
