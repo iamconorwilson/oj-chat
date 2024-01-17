@@ -181,6 +181,10 @@ span.redemption {
     margin-top: 5px;
 }
 
+.fade-out {
+    animation: fadeOut 1s ease;
+}
+
 @keyframes fadeInRight {
     from {
       opacity: 0;
@@ -190,5 +194,15 @@ span.redemption {
     to {
       opacity: 1;
       transform: translate3d(0, 0, 0);
+    }
+  }
+
+@keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+  
+    to {
+      opacity: 0;
     }
   }
