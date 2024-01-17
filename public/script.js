@@ -134,7 +134,7 @@ const onMsgEvent = async (msg) => {
 
     //remove old messages
     if (globalData.totalMessages > globalData.messagesLimit) {
-        const firstMessage = container.getElementById(`msg-${globalData.totalMessages - globalData.messagesLimit}`);
+        const firstMessage = container.querySelector(`#msg-${globalData.totalMessages - globalData.messagesLimit}`);
         firstMessage.remove();
     }
 
