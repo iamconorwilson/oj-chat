@@ -53,7 +53,7 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
     // Handle 7tv emotes
     for (let emote of emoteCache) {
         //emote name should not be within another word
-        const emoteName = emote.name;
+        const emoteName = emote.name.replace(/^\((.*)\)$/, '$1');
         const emoteRegex = new RegExp(`\\b${emoteName}\\b`, `g`);
         const matches = [...message.matchAll(emoteRegex)];
 
