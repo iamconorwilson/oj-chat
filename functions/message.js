@@ -52,10 +52,9 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
 
     // Handle 7tv emotes
     for (let emote of emoteCache) {
-        // //emote name should not be within another word
-        const emoteName = emote.name;
-        //if emote name has opening and closing parenthesis, set true
-        const hasBrackets = emoteName.startsWith('(') && emoteName.endsWith(')');
+        ////emote name should not be within another word
+        const hasBrackets = emote.name.includes('(') || emote.name.includes(')');
+        const emoteName = emote.name.replace(/\(|\)/g, '');
         const emoteRegex = new RegExp(`\\b${emoteName}\\b`, `g`);
         const matches = [...message.matchAll(emoteRegex)];
 
@@ -63,9 +62,18 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
         if (matches.length === 0) continue;
 
         for (const match of matches) {
-            //if emote name has brackets, remove one from start index, else do nothing
-            const emoteStart = hasBrackets ? match.index - 1 : match.index;
-            const emoteEnd = emoteStart + emoteName.length - 1;
+
+            let startOffset = 0;
+            let endOffset = 0;
+
+            //if has brackets and previous char is an opening bracket, remove 1 from start index
+            if (hasBrackets && message[match.index - 1] === '(') {
+                startOffset = -1;
+                endOffset = 2;
+            } 
+
+            const emoteStart = match.index + startOffset;
+            const emoteEnd = emoteStart + emoteName.length + endOffset - 1;
             const zeroWidth = emote.isZeroWidth ? 'zero-width' : '';
             
             const emoteUrl = `https://cdn.7tv.app/emote/${emote.id}/3x.webp`;
