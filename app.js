@@ -1,7 +1,7 @@
 import { setupAuth } from "./auth/twitch.js";
 import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./functions/message.js";
 import { getBadgeCache, getEmoteCache, getPronounCache } from "./functions/caches.js";
-import { getUserColor, debug } from "./functions/utils.js";
+import { getUserColor } from "./functions/utils.js";
 import { server, emit } from "./functions/server.js";
 
 
@@ -43,30 +43,31 @@ chat.onMessage(async (channel, user, message, msg) => {
         highlight: highlight
     }
 
-    debug.log(msgDetail);
+    console.log('Added: ', id);
 
     emit('newMessage', msgDetail);
 
 });
 
 chat.onMessageRemove((channel, messageId, msg) => {
-    debug.log(messageId);
+    console.log('Removed: ', messageId);
     emit('removeSingleMessage', { id: messageId });
 });
 
 chat.onTimeout(async (channel, user, duration, msg) => {
-    const userId = await client.users.getUserByName(user);
-    debug.log(userId);
+    const userId = await client.users.getUserByName(user)
+    console.log('Removed user: ', userId.id);
     emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onBan(async (channel, user, msg) => {
     const userId = await client.users.getUserByName(user);
-    debug.log(userId);
+    console.log('Banned user: ', userId.id);
     emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onChatClear((channel, msg) => {
+    console.log('Cleared chat');
     emit('removeAllMessages');
 });
 

@@ -11,6 +11,7 @@ export const debug = {
         // if (process.env.NODE_ENV === 'development') {
         //     console.log(message);
         // }
-        console.info(JSON.stringify(message));
+        // console.info(JSON.stringify(message));
+        return;
     }
 }
