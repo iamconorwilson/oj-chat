@@ -19,13 +19,13 @@ const server = () => {
         //set sockets to total number of connected sockets
         socketCount = io.sockets.sockets.size;
 
-        console.log(`A user connected. ${sockets} users connected`);
+        console.log(`A user connected. ${socketCount} users connected`);
         
         socket.emit("version", version);
 
         socket.on("disconnect", () => {
             socketCount = io.sockets.sockets.size;
-            console.log(`A user disconnected. ${sockets} users connected`);
+            console.log(`A user disconnected. ${socketCount} users connected`);
         });
 
         socket.on("clientError", (data) => {

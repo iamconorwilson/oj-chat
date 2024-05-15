@@ -35,7 +35,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         
         const now = Math.floor(Date.now() / 1000);
-        urlParams.push('v', now);
+        urlParams.set('v', now);
         const iframe = document.createElement('iframe');
         iframe.src = 'chat.html?' + urlParams.toString();
 
