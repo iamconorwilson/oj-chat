@@ -31,20 +31,16 @@
 <body>
 
     <script>
+        //passthrough query params
+        const urlParams = new URLSearchParams(window.location.search);
+        
         const now = Math.floor(Date.now() / 1000);
+        urlParams.push('v', now);
         const iframe = document.createElement('iframe');
-        iframe.src = 'chat.html?v=' + now;
+        iframe.src = 'chat.html?' + urlParams.toString();
 
         document.body.appendChild(iframe);
 
-        //6 hours in ms
-        const time = 6 * 60 * 60 * 1000;
-
-        setTimeout(() => {
-            console.log('Reloading timer');
-            const now = Math.floor(Date.now() / 1000);
-            iframe.src = 'chat.html?v=' + now;
-        }, time);
     </script>
 </body>
 
