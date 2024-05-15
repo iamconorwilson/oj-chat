@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>OJChat</title>
+</head>
+<body>
+    <div id="container"></div>
+    <script>
+
+        // current unix timestamp
+        const now = Math.floor(Date.now() / 1000);
+
+        // load script with javascript
+        const script = document.createElement('script');
+        script.src = 'script.js?v=' + now;
+
+        // load stylesheet with javascript
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'css/styles.css?v=' + now;
+
+        let scriptLoaded = false;
+        let stylesheetLoaded = false;
+
+        script.onload = () => {
+            scriptLoaded = true;
+            if (stylesheetLoaded) {
+                document.getElementById('wrapper').style.opacity = '1';
+            }
+        };
+
+        link.onload = () => {
+            stylesheetLoaded = true;
+            if (scriptLoaded) {
+                document.getElementById('wrapper').style.opacity = '1';
+            }
+        };
+
+        document.head.appendChild(script);
+        document.head.appendChild(link);
+
+    </script>
+</body>
+</html>

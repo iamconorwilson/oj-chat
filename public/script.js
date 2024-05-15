@@ -1,12 +1,12 @@
 //GLOBAL DATA
 const globalData = {
-    ignoredUsers: [],
+    ignoredUsers: ['robo_oj'],
     hideCommands: true,
-    totalMessages: 0,
     messagesLimit: 10
 };
 
 let eventQueue = [];
+let totalMessages = 0;
 
 //DOM ELEMENTS
 const container = document.getElementById("container");
@@ -80,7 +80,7 @@ const newMessage = async (data) => {
     if (globalData.ignoredUsers.includes(data.user.displayName)) return;
     if (container.querySelector(`[data-msgId="${data.id}"]`)) return;
 
-    globalData.totalMessages++;
+    totalMessages++;
 
     let highlight = data.highlight ? 'highlight' : '';
 
@@ -93,7 +93,7 @@ const newMessage = async (data) => {
     //set attributes
     html.setAttribute('data-userId', data.user.userId);
     html.setAttribute('data-msgId', data.id);
-    html.setAttribute('id', `msg-${globalData.totalMessages}`);
+    html.setAttribute('id', `msg-${totalMessages}`);
 
     html.classList.add('message-row');
 
@@ -130,11 +130,15 @@ const onMsgEvent = async (msg) => {
 
     if (newMessageElement === undefined) return;
 
+    if (eventQueue.length > 10) {
+        newMessageElement.style.animation = 'none';
+    }
+
     container.appendChild(newMessageElement);
 
     //remove old messages
-    if (globalData.totalMessages > globalData.messagesLimit) {
-        const firstMessage = container.querySelector(`#msg-${globalData.totalMessages - globalData.messagesLimit}`);
+    if (totalMessages > globalData.messagesLimit) {
+        const firstMessage = container.querySelector(`#msg-${totalMessages - globalData.messagesLimit}`);
         firstMessage.classList.add('fade-out');
         setTimeout(() => {
             firstMessage.remove();

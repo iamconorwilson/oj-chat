@@ -3,6 +3,7 @@ import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./f
 import { getBadgeCache, getEmoteCache, getPronounCache } from "./functions/caches.js";
 import { getUserColor } from "./functions/utils.js";
 import { server, emit } from "./functions/server.js";
+import { enqueue, dequeue, size } from "./functions/queue.js";
 
 
 import * as dotenv from 'dotenv';
@@ -45,30 +46,36 @@ chat.onMessage(async (channel, user, message, msg) => {
 
     console.log('Added: ', id);
 
-    emit('newMessage', msgDetail);
+    queueMessage('newMessage', msgDetail);
 
 });
 
 chat.onMessageRemove((channel, messageId, msg) => {
     console.log('Removed: ', messageId);
-    emit('removeSingleMessage', { id: messageId });
+    queueMessage('removeSingleMessage', { id: messageId });
+    // emit('removeSingleMessage', { id: messageId });
 });
 
 chat.onTimeout(async (channel, user, duration, msg) => {
     const userId = await client.users.getUserByName(user)
     console.log('Removed user: ', userId.id);
-    emit('removeUserMessages', { userId: userId.id });
+
+    queueMessage('removeUserMessages', { userId: userId.id });
+    // emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onBan(async (channel, user, msg) => {
     const userId = await client.users.getUserByName(user);
     console.log('Banned user: ', userId.id);
-    emit('removeUserMessages', { userId: userId.id });
+
+    queueMessage('removeUserMessages', { userId: userId.id });
+    // emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onChatClear((channel, msg) => {
     console.log('Cleared chat');
-    emit('removeAllMessages');
+    queueMessage('removeAllMessages', {});
+    // emit('removeAllMessages');
 });
 
 chat.onAuthenticationSuccess(() => {
@@ -77,3 +84,15 @@ chat.onAuthenticationSuccess(() => {
 
 chat.connect();
 
+
+const queueMessage = (target, message) => {
+    enqueue(target, message);
+    processQueue();
+}
+
+const processQueue = () => {
+    while (size() > 0) {
+        const item = dequeue();
+        emit(item.target, item.message);
+    }
+}
