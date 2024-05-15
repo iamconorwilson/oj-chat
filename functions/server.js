@@ -2,9 +2,10 @@ import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-let io, sockets;
+let io, socketCount = 0;
 
 const version = process.env.npm_package_version;
+const port = process.env.PORT || 3000;
 
 const server = () => {
     const app = new Express();
@@ -16,14 +17,14 @@ const server = () => {
     io.on("connection", (socket) => {
 
         //set sockets to total number of connected sockets
-        sockets = io.sockets.sockets.size;
+        socketCount = io.sockets.sockets.size;
 
         console.log(`A user connected. ${sockets} users connected`);
         
         socket.emit("version", version);
 
         socket.on("disconnect", () => {
-            sockets = io.sockets.sockets.size;
+            socketCount = io.sockets.sockets.size;
             console.log(`A user disconnected. ${sockets} users connected`);
         });
 
@@ -32,8 +33,8 @@ const server = () => {
         });
     });
 
-    server.listen(3000, () => {
-        console.log("Listening on *:3000");
+    server.listen(port, () => {
+        console.log(`Listening on *:${port}`);
     });
 
 }
