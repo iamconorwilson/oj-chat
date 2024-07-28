@@ -28,14 +28,14 @@
         script.onload = () => {
             scriptLoaded = true;
             if (stylesheetLoaded) {
-                document.getElementById('wrapper').style.opacity = '1';
+                document.getElementById('container').style.opacity = '1';
             }
         };
 
         link.onload = () => {
             stylesheetLoaded = true;
             if (scriptLoaded) {
-                document.getElementById('wrapper').style.opacity = '1';
+                document.getElementById('container').style.opacity = '1';
             }
         };
 
