@@ -6,7 +6,7 @@ import { promises as fs } from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-const secretsPath = './secrets/secrets.json';
+const secretsPath = './secrets.json';
 
 export async function setupAuth() {
     const clientId = process.env.TWITCH_CLIENT_ID;
