@@ -25,6 +25,17 @@ const init = async () => {
         document.head.appendChild(css);
     }
 
+    //if url params has transparent
+    if (urlParams.has('transparent')) {
+        container.classList.add('transparent');
+    }
+
+    //if url params has large
+    if (urlParams.has('large')) {
+        container.classList.add('large');
+    }
+
+
     //load socket.io script
     const script = document.createElement('script');
     script.src = '/socket.io/socket.io.js';
