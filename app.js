@@ -95,7 +95,7 @@ const queueMessage = (target, message) => {
 const processQueue = () => {
     while (size() > 0) {
         const item = dequeue();
-        console.log(`Emitting: ${item.target} - ${item?.id}`);
+        console.log(`Emitting: ${item.target} - ${JSON.stringify(item)}`);
         emit(item.target, item.message);
     }
 }
