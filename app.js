@@ -21,6 +21,8 @@ chat.onMessage(async (channel, user, message, msg) => {
     
     const { emoteOffsets, userInfo, id, isCheer } = msg;
 
+    console.log(`Added: ${id} - ${userInfo.displayName} - ${message}`);
+
     const messageHtml = createMessageHtml(message, emoteOffsets, isCheer);
 
     const badgeHtml = await createBadges(userInfo, client);
@@ -44,31 +46,31 @@ chat.onMessage(async (channel, user, message, msg) => {
         highlight: highlight
     }
 
-    console.log('Added: ', id);
+    console.log(`Queued: ${id} - ${userInfo.displayName} - ${message}`);
 
     queueMessage('newMessage', msgDetail);
 
 });
 
 chat.onMessageRemove((channel, messageId, msg) => {
-    console.log('Removed: ', messageId);
+    console.log(`Removed: ${messageId}`);
     queueMessage('removeSingleMessage', { id: messageId });
     // emit('removeSingleMessage', { id: messageId });
 });
 
 chat.onTimeout(async (channel, user, duration, msg) => {
     const userId = await client.users.getUserByName(user)
-    console.log('Removed user: ', userId.id);
+    console.log(`Removed user: ${userId.id}`);
 
-    queueMessage('removeUserMessages', { userId: userId.id });
+    queueMessage('removeUserMessages', { id: userId.id });
     // emit('removeUserMessages', { userId: userId.id });
 });
 
 chat.onBan(async (channel, user, msg) => {
     const userId = await client.users.getUserByName(user);
-    console.log('Banned user: ', userId.id);
+    console.log(`Banned user: ${userId.id}`);
 
-    queueMessage('removeUserMessages', { userId: userId.id });
+    queueMessage('removeUserMessages', { id: userId.id });
     // emit('removeUserMessages', { userId: userId.id });
 });
 
@@ -93,6 +95,7 @@ const queueMessage = (target, message) => {
 const processQueue = () => {
     while (size() > 0) {
         const item = dequeue();
+        console.log(`Emitting: ${item.target} - ${item?.id}`);
         emit(item.target, item.message);
     }
 }

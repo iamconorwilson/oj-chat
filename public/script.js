@@ -82,14 +82,15 @@ const init = async () => {
 const processEventQueue = () => {
     if (eventQueue.length > 0) {
         const nextEvent = eventQueue.shift();
+        console.log(JSON.stringify(nextEvent));
         onMsgEvent(nextEvent);
     }
 }
 
 const newMessage = async (data) => {
-    if (data.message.startsWith("!") && globalData.hideCommands) return;
-    if (globalData.ignoredUsers.includes(data.user.displayName)) return;
-    if (container.querySelector(`[data-msgId="${data.id}"]`)) return;
+    if (data.message.startsWith("!") && globalData.hideCommands) return console.log('Command is hidden');
+    if (globalData.ignoredUsers.includes(data.user.displayName)) return console.log('User is ignored');
+    if (container.querySelector(`[data-msgId="${data.id}"]`)) return console.log('Message already exists');
 
     totalMessages++;
 
@@ -160,9 +161,9 @@ const onMsgEvent = async (msg) => {
 }
 
 const onRemoveUserMsg = (data) => {
-    const { userId } = data;
+    const { id } = data;
 
-    const messages = container.querySelectorAll(`[data-userId="${userId}"]`);
+    const messages = container.querySelectorAll(`[data-userId="${id}"]`);
 
     messages.forEach(msg => {
         msg.remove();
