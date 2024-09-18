@@ -2,13 +2,22 @@ import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
 import { ChatClient } from '@twurple/chat';
 import { promises as fs } from 'fs';
+import path from 'path';
 
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-const secretsPath = './secrets.json';
+const secretsPath = path.resolve(process.cwd() + process.env.SECRETS_PATH);
 
 export async function setupAuth() {
+    //if secrets file doesn't exist, warn user and exit
+    try {
+        await fs.access(secretsPath);
+    } catch (error) {
+        console.error('Secrets file not found. Please create a secrets file at the specified path and try again.');
+        process.exit(1);
+    }
+
     const clientId = process.env.TWITCH_CLIENT_ID;
     const clientSecret = process.env.TWITCH_CLIENT_SECRET;
     const targetUserId = process.env.TWITCH_USER_ID;
