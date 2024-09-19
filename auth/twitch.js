@@ -15,7 +15,7 @@ export async function setupAuth() {
         await fs.access(secretsPath);
     } catch (error) {
         console.error('Secrets file not found. Please create a secrets file at the specified path and try again.');
-        process.exit(1);
+        return false;
     }
 
     const clientId = process.env.TWITCH_CLIENT_ID;
