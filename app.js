@@ -13,6 +13,8 @@ server();
 
 const { client, chat } = await setupAuth();
 
+try {
+
 await getBadgeCache(client);
 await getEmoteCache();
 await getPronounCache();
@@ -98,4 +100,7 @@ const processQueue = () => {
         console.log(`Emitting: ${item.target} - ${JSON.stringify(item)}`);
         emit(item.target, item.message);
     }
+}
+} catch (error) {
+    console.error(error);
 }
