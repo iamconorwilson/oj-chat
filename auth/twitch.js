@@ -15,6 +15,7 @@ export async function setupAuth() {
         await fs.access(secretsPath);
     } catch (error) {
         console.error('Secrets file not found. Please create a secrets file at the specified path and try again.');
+        console.log('Secrets file path:', secretsPath);
         return false;
     }
 
