@@ -40,7 +40,12 @@ export async function setupAuth() {
 
     console.log(`Logged in as ${username}`);
 
-    const chat = new ChatClient({ authProvider, channels: [username] });
+    const chat = new ChatClient({ 
+        authProvider, 
+        channels: [username], 
+        rejoinChannelsOnReconnect: true, 
+        readOnly: true 
+    });
 
     return { client, chat };
 }
