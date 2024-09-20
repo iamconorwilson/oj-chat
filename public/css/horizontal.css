@@ -2,13 +2,18 @@ body {
     margin: 0;
 }
 
-#container {
-    flex-direction: row;
+#container-wrap {
     height: 60px;
     padding: 10px;
     margin-bottom: 0;
     border-radius: 0;
+}
+
+#container {
+    flex-direction: row;
     gap: 10px;
+    mask-image: linear-gradient(to right, transparent 0%, black 200px);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 200px);
 }
 
 #container>div {

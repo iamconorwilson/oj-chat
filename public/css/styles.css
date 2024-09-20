@@ -14,19 +14,27 @@ body {
     font-weight: normal;
 }
 
-#container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: stretch;
-    align-content: flex-start;
+#container-wrap {
     height: 98%;
     margin-bottom: 0.625rem;
     padding: 1.25rem;
     box-sizing: border-box;
     border-radius: 0.625rem;
-    overflow: hidden;
     background-color: var(--background-base);
+    overflow: hidden;
+}
+
+#container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    align-content: flex-start;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 100px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 100px);
 }
 
 #container>div {    
@@ -187,11 +195,6 @@ span.redemption {
 .fade-out {
     animation: fadeOut 0.5s ease;
     animation-fill-mode: forwards;
-}
-
-/* Large Styles */
-html:has(#container.large) {
-    font-size: 24px;
 }
 
 /* Transparent Styles */

@@ -7,7 +7,7 @@ import path from 'path';
 import * as dotenv from 'dotenv';
 dotenv.config()
 
-const secretsPath = path.resolve(process.cwd() + process.env.SECRETS_PATH);
+const secretsPath = path.resolve(process.cwd(), process.env.SECRETS_PATH);
 
 export async function setupAuth() {
     //if secrets file doesn't exist, warn user and exit
