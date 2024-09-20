@@ -32,7 +32,7 @@ const init = async () => {
 
     //if url params has large
     if (urlParams.has('large')) {
-        container.classList.add('large');
+        document.documentElement.style.fontSize = '24px';
     }
 
 
