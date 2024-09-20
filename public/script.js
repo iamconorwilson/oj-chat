@@ -9,6 +9,8 @@ let eventQueue = [];
 let totalMessages = 0;
 
 //DOM ELEMENTS
+
+const containerWrap = document.getElementById("container-wrap");
 const container = document.getElementById("container");
 
 //INIT FUNCTION
@@ -27,7 +29,7 @@ const init = async () => {
 
     //if url params has transparent
     if (urlParams.has('transparent')) {
-        container.classList.add('transparent');
+        containerWrap.classList.add('transparent');
     }
 
     //if url params has large
