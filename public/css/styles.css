@@ -198,7 +198,7 @@ span.redemption {
 }
 
 /* Transparent Styles */
-#container.transparent {
+#container-wrap.transparent {
     background-color: transparent;
 }
 
