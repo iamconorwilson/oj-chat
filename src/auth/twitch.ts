@@ -22,7 +22,7 @@ export async function setupAuth() {
     const clientId = process.env.TWITCH_CLIENT_ID;
     const clientSecret = process.env.TWITCH_CLIENT_SECRET;
     const targetUserId = process.env.TWITCH_USER_ID;
-    const tokenData = JSON.parse(await fs.readFile(secretsPath, 'UTF-8'));
+    const tokenData = JSON.parse(await fs.readFile(secretsPath, 'utf-8'));
     const authProvider = new RefreshingAuthProvider(
         {
             clientId,
@@ -30,19 +30,23 @@ export async function setupAuth() {
         }
     );
 
-    authProvider.onRefresh(async (userId, newTokenData) => await fs.writeFile(secretsPath, JSON.stringify(newTokenData, null, 4), 'UTF-8'));
+    authProvider.onRefresh(async (userId, newTokenData) => await fs.writeFile(secretsPath, JSON.stringify(newTokenData, null, 4), 'utf-8'));
 
     await authProvider.addUserForToken(tokenData, ['chat']);
 
     const client = new ApiClient({ authProvider });
 
-    const username = (await client.users.getUserById(targetUserId)).name;
+    const user = await client.users.getUserById(targetUserId);
 
-    console.log(`Logged in as ${username}`);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    console.log(`Logged in as ${user.name}`);
 
     const chat = new ChatClient({ 
         authProvider, 
-        channels: [username], 
+        channels: [user.name], 
         rejoinChannelsOnReconnect: true, 
         readOnly: true 
     });

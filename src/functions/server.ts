@@ -2,17 +2,18 @@ import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
-let io, socketCount = 0;
+let io: Server
+let socketCount = 0;
 
 const version = process.env.npm_package_version;
 const port = process.env.PORT || 3000;
 
 const server = () => {
-    const app = new Express();
+    const app = Express();
     const server = createServer(app);
     io = new Server(server);
 
-    app.use(Express.static("public"));
+    app.use(Express.static("dist/public"));
 
     io.on("connection", (socket) => {
 
@@ -39,7 +40,7 @@ const server = () => {
 
 }
 
-const emit = (event, data) => {
+const emit = (event: string, data: any) => {
     if (!io) return console.error("Socket not initialized");
     io.emit(event, data);
 }

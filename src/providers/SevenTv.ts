@@ -1,14 +1,17 @@
 import axios from "axios";
 
 const baseUrl = "https://7tv.io/v3/";
-const emoteSets = [];
+const emoteSets: string[] = [];
 
-const getChannelEmotes = async (userId) => {
+type EmoteFilterFunction = (response: any) => Emote[];
+
+
+const getChannelEmotes = async (userId: string): Promise<Emote[]> => {
     const endpoint = baseUrl + `users/twitch/${userId}`;
 
-    const filter = (response) => {
+    const filter: EmoteFilterFunction = (response: SevenTvChannelEmoteSet) => {
         emoteSets.push(response.data.emote_set.id);
-        const emotes = response.data.emote_set.emotes.map((emote) => {
+        const emotes = response.data.emote_set.emotes.map((emote: SevenTvEmote) => {
             return {
                 id: emote.data.id,
                 name: emote.data.name,
@@ -21,11 +24,11 @@ const getChannelEmotes = async (userId) => {
     return await requestEmotes(endpoint, filter);
 }
 
-const getGlobalEmotes = async () => {
+const getGlobalEmotes = async (): Promise<Emote[]> => {
     const endpoint = baseUrl + `emote-sets/global`;
 
-    const filter = (response) => {
-        const emotes = response.data.emotes.map((emote) => {
+    const filter: EmoteFilterFunction = (response: SevenTvGlobalEmoteSet) => {
+        const emotes = response.data.emotes.map((emote: SevenTvEmote) => {
             return {
                 id: emote.data.id,
                 name: emote.data.name,
@@ -39,21 +42,22 @@ const getGlobalEmotes = async () => {
 }
 
 
-const requestEmotes = async (url, func) => {
+const requestEmotes = async (url: string, func: EmoteFilterFunction): Promise<Emote[]> => {
     return axios.get(url)
-    .then((response) => {
-        return func(response);
-    })
-    .catch((err) => {
-        console.error(err);
-    });
+        .then((response) => {
+            return func(response);
+        })
+        .catch((err) => {
+            console.error(err);
+            return [];
+        });
 }
 
-const getEmotes = async (userId) => {
+const getEmotes = async (userId: string) => {
     const channelEmotes = await getChannelEmotes(userId);
     const globalEmotes = await getGlobalEmotes();
 
     return [...channelEmotes, ...globalEmotes];
 }
 
-export { getEmotes, emoteSets}
+export { getEmotes, emoteSets }

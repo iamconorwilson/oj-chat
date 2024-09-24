@@ -5,13 +5,19 @@ import { getUserColor } from "./functions/utils.js";
 import { server, emit } from "./functions/server.js";
 import { enqueue, dequeue, size } from "./functions/queue.js";
 
-
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 server();
 
-const { client, chat } = await setupAuth();
+const authResult = await setupAuth();
+
+if (authResult === false) {
+    console.error('Authentication setup failed.');
+    process.exit(1); // Exit the process with an error code
+}
+
+const { client, chat } = authResult;
 
 try {
 
@@ -27,7 +33,7 @@ try {
 
         const messageHtml = createMessageHtml(message, emoteOffsets, isCheer);
 
-        const badgeHtml = await createBadges(userInfo, client);
+        const badgeHtml = await createBadges(userInfo);
 
         const redemption = msg.isRedemption ? await getRedemption(msg.rewardId, client) : null;
 
@@ -62,6 +68,7 @@ try {
 
     chat.onTimeout(async (channel, user, duration, msg) => {
         const userId = await client.users.getUserByName(user)
+        if (!userId) return;
         console.log(`Removed user: ${userId.id}`);
 
         queueMessage('removeUserMessages', { id: userId.id });
@@ -70,6 +77,7 @@ try {
 
     chat.onBan(async (channel, user, msg) => {
         const userId = await client.users.getUserByName(user);
+        if (!userId) return;
         console.log(`Banned user: ${userId.id}`);
 
         queueMessage('removeUserMessages', { id: userId.id });
@@ -89,7 +97,7 @@ try {
     chat.connect();
 
 
-    const queueMessage = (target, message) => {
+    function queueMessage(target: string, message: any) {
         enqueue(target, message);
         processQueue();
     }
@@ -97,6 +105,7 @@ try {
     const processQueue = () => {
         while (size() > 0) {
             const item = dequeue();
+            if (!item) return;
             console.log(`Emitting: ${item.target} - ${JSON.stringify(item)}`);
             emit(item.target, item.message);
         }

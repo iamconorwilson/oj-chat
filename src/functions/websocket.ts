@@ -1,7 +1,7 @@
 import ws from 'ws';
 import { addEmoteToCache, removeEmoteFromCache } from './caches.js';
 
-export const emoteUpdates = (emoteSetId) => {
+export const emoteUpdates = (emoteSetId: string) => {
     const socket = new ws("wss://events.7tv.io/v3");
 
     const payload = {
@@ -32,7 +32,7 @@ export const emoteUpdates = (emoteSetId) => {
             //if body.pushed exists
             if (body.pushed) {
                 //for each emote in body.pushed
-                body.pushed.forEach((data) => {
+                body.pushed.forEach((data: SevenTvEmoteWS) => {
                     const emote = {
                         id: data.value.id,
                         name: data.value.name,
@@ -46,7 +46,8 @@ export const emoteUpdates = (emoteSetId) => {
             //if body.pulled exists
             if (body.pulled) {
                 //for each emote in body.pulled
-                body.pulled.forEach((data) => {
+                body.pulled.forEach((data: SevenTvEmoteWS) => {
+                    if (!data.old_value) return;
                     removeEmoteFromCache(data.old_value.id);
                 });
             }

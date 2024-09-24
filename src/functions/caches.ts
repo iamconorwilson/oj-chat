@@ -1,11 +1,12 @@
 import axios from "axios";
 import { emoteUpdates } from "./websocket.js";
+import { ApiClient, HelixChatBadgeSet } from "@twurple/api";
 
-export const badgeCache = [];
-export const pronounCache = [];
-export const emoteCache = [];
+export const badgeCache: HelixChatBadgeSet[] = [];
+export const pronounCache: Pronoun[] = [];
+export const emoteCache: Emote[] = [];
 
-let emoteSetId = '';
+let emoteSetId: string = '';
 
 export const getPronounCache = () => {
     return axios.get("https://pronouns.alejo.io/api/pronouns")
@@ -22,7 +23,7 @@ export const getEmoteCache = async () => {
     return Promise.resolve();
 }
 
-export const getBadgeCache = async (client) => {
+export const getBadgeCache = async (client: ApiClient) => {
     const channelBadges = await client.chat.getChannelBadges(process.env.TWITCH_USER_ID);
     const globalBadges = await client.chat.getGlobalBadges();
 
@@ -31,15 +32,15 @@ export const getBadgeCache = async (client) => {
     return Promise.resolve();
 }
 
-export const addEmoteToCache = (emote) => {
+export const addEmoteToCache = (emote: Emote) => {
     //if emote exists in cache, do nothing
-    if (emoteCache.findIndex((cacheEmote) => cacheEmote.id === emote.id) !== -1) return;
+    if (emoteCache.findIndex((cacheEmote: Emote) => cacheEmote.id === emote.id) !== -1) return;
     console.log(`Adding ${emote.name} to cache`);
 
     emoteCache.push(emote);
 }
 
-export const removeEmoteFromCache = (emoteId) => {
+export const removeEmoteFromCache = (emoteId: Emote["id"]) => {
     const index = emoteCache.findIndex((emote) => emote.id === emoteId);
     //if emote does not exist in cache, do nothing
     if (index === -1) return;
@@ -49,11 +50,11 @@ export const removeEmoteFromCache = (emoteId) => {
     emoteCache.splice(index, 1);
 }
 
-const getChannelEmotes = (twitchId) => {
+const getChannelEmotes = (twitchId: string) => {
     return axios.get(`https://7tv.io/v3/users/twitch/${twitchId}`)
     .then((response) => {
         emoteSetId = response.data.emote_set.id;
-        const emotes = response.data.emote_set.emotes.map((emote) => {
+        const emotes = response.data.emote_set.emotes.map((emote: SevenTvEmote) => {
             return {
                 id: emote.data.id,
                 name: emote.data.name,
@@ -70,7 +71,7 @@ const getChannelEmotes = (twitchId) => {
 const getGlobalEmotes = () => {
     return axios.get(`https://7tv.io/v3/emote-sets/global`)
     .then((response) => {
-        const emotes = response.data.emotes.map((emote) => {
+        const emotes = response.data.emotes.map((emote: SevenTvEmote) => {
             return {
                 id: emote.data.id,
                 name: emote.data.name,
