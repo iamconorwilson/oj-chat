@@ -1,6 +1,6 @@
-const queue = [];
+const queue: QueueItem[] = [];
 
-const enqueue = (target, message) => {
+const enqueue = (target: string, message: any) => {
 
     const item = {
         target: target,

@@ -1,10 +1,12 @@
+import { ChatUser } from '@twurple/chat';
 import { badgeCache, pronounCache, emoteCache } from './caches.js';
 
 import * as dotenv from 'dotenv';
+import { ApiClient } from '@twurple/api';
 dotenv.config();
 
 
-export const createMessageHtml = (message, twitchEmotes, isCheer) => {
+export const createMessageHtml = (message: string, twitchEmotes: Map<string, string[]>, isCheer: boolean) => {
     let replacements = [];
 
     // Handle cheers
@@ -130,7 +132,7 @@ export const createMessageHtml = (message, twitchEmotes, isCheer) => {
     return message;
 }
 
-export const createBadges = async (userInfo) => {
+export const createBadges = async (userInfo: ChatUser) => {
 
     const { badges } = userInfo;
 
@@ -153,7 +155,7 @@ export const createBadges = async (userInfo) => {
     return badgeImg;
 }
 
-export const getPronouns = async (userInfo) => {
+export const getPronouns = async (userInfo: ChatUser) => {
     const { displayName } = userInfo;
     return await fetch(`https://pronouns.alejo.io/api/users/${displayName}`)
     .then((response) => response.json())
@@ -161,6 +163,7 @@ export const getPronouns = async (userInfo) => {
         if (data.length === 0) return;
 
         const pronoun = pronounCache.find(p => p.name === data[0].pronoun_id);
+        if (!pronoun) return;
         return pronoun.display;
     })
     .catch((err) => {
@@ -169,9 +172,10 @@ export const getPronouns = async (userInfo) => {
     });
 }
 
-export const getRedemption = async (rewardId, client) => {
+export const getRedemption = async (rewardId: string | null, client: ApiClient) => {
+    if (!rewardId) return;
     const redemption = await client.channelPoints.getCustomRewardById(process.env.TWITCH_USER_ID, rewardId);
-
+    if (!redemption) return;
     return {
         title: redemption.title,
         cost: redemption.cost
