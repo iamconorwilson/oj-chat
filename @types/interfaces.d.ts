@@ -51,4 +51,5 @@ interface Pronoun {
 interface QueueItem {
     target: string;
     message: any;
+    timestamp?: number;
 }

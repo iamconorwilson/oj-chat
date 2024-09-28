@@ -25,6 +25,13 @@ const size = () => {
 }
 
 const getHistory = () => {
+    //check for expired history
+    const now = Date.now();
+    const cutoff = 86400 * 1000; // 24 hours
+    
+    //filter out expired history or if the timestamp is missing
+    history.filter(i => i.timestamp && now - i.timestamp < cutoff);
+
     return history;
 }
 
@@ -53,6 +60,8 @@ const addHistory = (item: QueueItem): void => {
         history.splice(0, history.length);
         return;
     }
+
+    item.timestamp = Date.now();
 
     history.push(item);
 
