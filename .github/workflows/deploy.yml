@@ -26,7 +26,9 @@ jobs:
           cache: "npm"
       - run: npm ci --include=dev
       - run: npm run build --if-present
-      - name: List dist/ directory contents
+      - name: Copy static files
+        run: cp -r src/public/* dist/public/
+      - name: List dist/public directory contents
         run: ls -la dist/public
       - run: npm prune --production
       # create captain-definition file from template
