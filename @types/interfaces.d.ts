@@ -43,8 +43,8 @@ interface SevenTvGlobalEmoteSet {
 
 // PRONOUNS
 interface Pronoun {
-    "display": string;
-    "name": string;
+    display: string;
+    name: string;
 }
 
 // QUEUE
