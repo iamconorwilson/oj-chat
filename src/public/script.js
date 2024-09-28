@@ -2,7 +2,7 @@
 const globalData = {
     ignoredUsers: ['robo_oj'],
     hideCommands: true,
-    messagesLimit: 10
+    messagesLimit: 20
 };
 
 let eventQueue = [];
@@ -61,6 +61,18 @@ const init = async () => {
             console.log(`OJ CHAT -- Version: ${version}`);
         });
 
+        socket.on("history", (history) => {
+            history.forEach(msg => {
+                if (msg.target === 'newMessage') {
+                    eventQueue.push(msg.message);
+                }
+            });
+
+            console.log(`History: ${history.length} messages`);
+
+            processEventQueue();
+        });
+
         //on message
         socket.on("newMessage", (msg) => {
             eventQueue.push(msg);
@@ -100,7 +112,7 @@ const newMessage = async (data) => {
 
     let message = `<span class="user-message ${highlight}">${data.message}</span>`;
     let user = await buildUser(data);
-    
+
     //create div element
     let html = document.createElement('div');
 

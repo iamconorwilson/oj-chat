@@ -1,6 +1,7 @@
 import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { getHistory } from "./queue.js";
 
 let io: Server
 let socketCount = 0;
@@ -23,6 +24,8 @@ const server = () => {
         console.log(`A user connected. ${socketCount} users connected`);
         
         socket.emit("version", version);
+
+        socket.emit("history", getHistory());
 
         socket.on("disconnect", () => {
             socketCount = io.sockets.sockets.size;
