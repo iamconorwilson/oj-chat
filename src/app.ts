@@ -1,9 +1,9 @@
 import { setupAuth } from "./auth/twitch.js";
-import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./functions/message.js";
-import { getBadgeCache, getEmoteCache, getPronounCache } from "./functions/caches.js";
+import { createMessageHtml, createBadges, getPronouns, getRedemption } from "./handlers/message.js";
+import { getBadgeCache, getEmoteCache, getPronounCache } from "./handlers/caches.js";
 import { getUserColor } from "./functions/utils.js";
-import { server, emit } from "./functions/server.js";
-import { enqueue, dequeue, size } from "./functions/queue.js";
+import { server, emit } from "./handlers/server.js";
+import { enqueue, dequeue, size } from "./handlers/queue.js";
 
 import * as dotenv from 'dotenv';
 dotenv.config();
