@@ -1,21 +1,28 @@
 # OJ Chat
+Simple application that displays onscreen Twitch chat with support for channel point redemptions, built using Twurple and Express.
 
-Simple application that displays onscreen Twitch chat.
+## Prerequisites
+* Twitch App Client ID and Secret - [Create a new application](https://dev.twitch.tv/console/apps)
 
 ## Instructions
-
-1. Clone repository and update .env file with Twitch Client/Secret and User ID
-2. Create secrets.json file in the root and follow [Twurple instructions for Refreshing Auth provider](https://twurple.js.org/docs/auth/providers/refreshing.html). Scopes required are:
-    * `"channel:manage:redemptions"`
-    * `"channel:read:redemptions"`
-    * `"chat:edit"`
+1. Clone repository and update .env file with Twitch Client/Secret, User ID and Secrets file path.
+2. Run `npm run auth` to authenticate with Twitch and generate a secrets.json file. Scopes required are:
     * `"chat:read"`
-    * `"user:read:email"`
-3. Run the application using `node app.js`. The application will start on port 3000.
+    * `"channel:read:redemptions"`
+3. Build the application using `npm start`. The application will start on port 3000.
 
-## TODOs
+## Features
+* Real-time onscreen chat display for Twitch channels
+* Supports channel point redemptions
+* Query parameters for changing styles:
+    * `?horizontal=true` - Horizontal chat layout
+    * `?large=true` - Large chat font
+    * `?transparent=true` - Transparent chat background
 
-* Add support for 7tv emote updates without restarting application
-* Add support for BTTV and FFZ emotes
-* ~~Add highlighted messages~~
+## Dependencies
+* [Twurple](https://twurple.js.org/)
+* [Express](https://expressjs.com/)
+* [socket.io](https://socket.io/)
+* [axios](https://axios-http.com/)
+* [dotenv](https://www.npmjs.com/package/dotenv)
 

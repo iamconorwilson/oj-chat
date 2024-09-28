@@ -8,12 +8,8 @@
     "copyfiles": "copyfiles -u 1 src/public/**/* dist",
     "clear": "rimraf dist",
     "build": "npm run clear && npm run copyfiles && tsc",
-<<<<<<< Updated upstream
-    "start": "npm run build && node dist/app.js"
-=======
     "start": "node dist/app.js",
     "auth": "npm run build && node dist/utils/getOAuth.js"
->>>>>>> Stashed changes
   },
   "repository": {
     "type": "git",
@@ -32,7 +28,6 @@
     "@twurple/chat": "^7.1.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
-    "eventsource": "^2.0.2",
     "express": "^4.21.0",
     "socket.io": "^4.7.5"
   },
