@@ -2,6 +2,7 @@ import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { getHistory } from "./queue.js";
+import fs from "fs";
 
 let io: Server
 let socketCount = 0;
@@ -14,7 +15,12 @@ const server = () => {
     const server = createServer(app);
     io = new Server(server);
 
-    app.use(Express.static("dist/public"));
+    //check public folder for static files
+    if (!fs.existsSync("./dist/public/index.html")) {
+        console.error("Public folder not found. Please run 'npm run build' to create the public folder");
+    }
+
+    app.use(Express.static("./dist/public"));
 
     io.on("connection", (socket) => {
 
@@ -22,7 +28,7 @@ const server = () => {
         socketCount = io.sockets.sockets.size;
 
         console.log(`A user connected. ${socketCount} users connected`);
-        
+
         socket.emit("version", version);
 
         socket.emit("history", getHistory());
