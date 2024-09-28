@@ -17,19 +17,8 @@ const server = () => {
 
     //check public folder for static files
     if (!fs.existsSync("./dist/public/index.html")) {
-        console.error("Public folder not found. Please run 'npm run build' to create the public folder");
-        //list all files in dist folder recursively
-        const files = fs.readdirSync("./dist", { withFileTypes: true });
-        files.forEach((file) => {
-            if (file.isDirectory()) {
-                const subFiles = fs.readdirSync(`./dist/${file.name}`, { withFileTypes: true });
-                subFiles.forEach((subFile) => {
-                    console.log(`${file.name}/${subFile.name}`);
-                });
-            } else {
-                console.log(file.name);
-            }
-        });
+        console.error("Public folder not found. Run 'npm run build' to create it.");
+        process.exit(1);
     }
 
     app.use(Express.static("./dist/public"));
