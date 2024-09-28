@@ -8,7 +8,12 @@
     "copyfiles": "copyfiles -u 1 src/public/**/* dist",
     "clear": "rimraf dist",
     "build": "npm run clear && npm run copyfiles && tsc",
+<<<<<<< Updated upstream
     "start": "npm run build && node dist/app.js"
+=======
+    "start": "node dist/app.js",
+    "auth": "npm run build && node dist/utils/getOAuth.js"
+>>>>>>> Stashed changes
   },
   "repository": {
     "type": "git",
