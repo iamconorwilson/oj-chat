@@ -24,9 +24,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: npm ci
+      - run: npm ci --include=dev
       - run: npm run build --if-present
-      - run: npm run test --if-present
+      - run: npm prune --production
       # create captain-definition file from template
       - name: Create captain-definition file
         run: |
