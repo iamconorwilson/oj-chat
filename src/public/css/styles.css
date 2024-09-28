@@ -92,6 +92,7 @@ span.pronoun {
 .user-message {
     display: inline;
     font-size: 1.25rem;
+    margin-left: 0.25rem;
     word-wrap: break-word;
 }
 
@@ -153,12 +154,12 @@ span.redemption {
 .redemption .cost::before {
     content: '';
     display: inline-block;
-    width: 1rem;
+    width: 1.25rem;
     height: 1rem;
-    background-image: url('data:image/svg+xml,<%3Fxml version="1.0" encoding="UTF-8"%3F><svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="m8,4c2.21,0,4,1.79,4,4h-2c0-1.1-.9-2-2-2v-2Z" style="fill: %23fff; stroke-width: 0px;"/><path d="m16,8c0,4.42-3.58,8-8,8S0,12.42,0,8,3.58,0,8,0s8,3.58,8,8Zm-2,0c0,3.31-2.69,6-6,6s-6-2.69-6-6,2.69-6,6-6,6,2.69,6,6Z" style="fill: %23fff; fill-rule: evenodd; stroke-width: 0px;"/></svg>');
+    background-image: url('https://static-cdn.jtvnw.net/custom-reward-images/default-4.png');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 1rem;
+    background-size: 1.25rem;
     vertical-align: bottom;
     margin-right: 0.25rem;
 }
