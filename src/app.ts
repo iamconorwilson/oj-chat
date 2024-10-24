@@ -106,7 +106,7 @@ try {
         while (size() > 0) {
             const item = dequeue();
             if (!item) return;
-            console.log(`Emitting: ${item.target} - ${JSON.stringify(item)}`);
+            console.log(`Emitting: ${item.target} - `, item);
             emit(item.target, item.message);
         }
     }

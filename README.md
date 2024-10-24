@@ -1,4 +1,4 @@
-# OJ Chat
+# OJChat
 Simple application that displays onscreen Twitch chat with support for channel point redemptions, built using Twurple and Express.
 
 ## Prerequisites
@@ -10,6 +10,9 @@ Simple application that displays onscreen Twitch chat with support for channel p
     * `"chat:read"`
     * `"channel:read:redemptions"`
 3. Build the application using `npm start`. The application will start on port 3000.
+
+## Development
+* Run `npm run dev` to start the application in development mode. The application will restart on file changes.
 
 ## Features
 * Real-time onscreen chat display for Twitch channels

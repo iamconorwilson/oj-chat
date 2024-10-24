@@ -32,6 +32,8 @@ const getHistory = () => {
     //filter out expired history or if the timestamp is missing
     history.filter(i => i.timestamp && now - i.timestamp < cutoff);
 
+    console.log('History:', history);
+
     return history;
 }
 
