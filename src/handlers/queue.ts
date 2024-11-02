@@ -1,6 +1,6 @@
 const queue: QueueItem[] = [];
 
-const history: QueueItem[] = [];
+let history: QueueItem[] = [];
 
 const enqueue = (target: string, message: any) => {
 
@@ -30,7 +30,7 @@ const getHistory = () => {
     const cutoff = 86400 * 1000; // 24 hours
     
     //filter out expired history or if the timestamp is missing
-    history.filter(i => i.timestamp && now - i.timestamp < cutoff);
+    history = history.filter(i => i.timestamp && now - i.timestamp < cutoff);
 
     console.log('History:', history);
 
