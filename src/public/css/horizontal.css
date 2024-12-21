@@ -12,8 +12,8 @@ body {
 #container {
     flex-direction: row;
     gap: 10px;
-    mask-image: linear-gradient(to right, transparent 0%, black 200px);
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 200px);
+    mask-image: linear-gradient(to right, transparent 1%, black 200px);
+    -webkit-mask-image: linear-gradient(to right, transparent 1%, black 200px);
 }
 
 #container>div {
@@ -27,6 +27,15 @@ body {
     padding: 8px 16px;
 }
 
+.user-box {
+    flex-wrap: nowrap;
+}
+
 .user-message {
     margin-left: 0;
+}
+
+span.redemption {
+    width: auto;
+    padding: 0 8px;
 }

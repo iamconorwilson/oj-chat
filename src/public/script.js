@@ -62,15 +62,18 @@ const init = async () => {
         });
 
         socket.on("history", (history) => {
-            history.forEach(msg => {
-                if (msg.target === 'newMessage') {
-                    eventQueue.push(msg.message);
-                }
-            });
+
+            console.log(history);
+
+            // history.forEach(msg => {
+            //     if (msg.target === 'newMessage') {
+            //         eventQueue.push(msg.message);
+            //     }
+            // });
 
             console.log(`History: ${history.length} messages`);
 
-            processEventQueue();
+            // processEventQueue();
         });
 
         //on message
@@ -152,7 +155,6 @@ const buildUser = async (data) => {
 const onMsgEvent = async (msg) => {
     console.log(msg);
     const newMessageElement = await newMessage(msg);
-
 
     if (newMessageElement === undefined) return;
 
