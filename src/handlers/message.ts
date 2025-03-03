@@ -14,7 +14,7 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
         const cheerRegex = /\bCheer[0-9]+\b/g;
         const cheerAmounts = ['10000', '5000', '1000', '100', '1'];
         let cheerMatch;
-    
+
         while ((cheerMatch = cheerRegex.exec(message)) !== null) {
             const cheerAmount = parseInt(cheerMatch[0].slice(5));
             const closestAmount = cheerAmounts.find(amount => cheerAmount >= parseInt(amount));
@@ -22,7 +22,7 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
             const cheerName = cheerMatch[0];
             const cheerStart = cheerMatch.index;
             const cheerEnd = cheerStart + cheerName.length - 1;
-    
+
             if (cheerStart !== -1) {
                 replacements.push({
                     start: cheerStart,
@@ -32,7 +32,7 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
             }
         }
     }
-    
+
 
     // Handle Twitch emotes
     for (let [key, value] of twitchEmotes.entries()) {
@@ -57,7 +57,8 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
         ////emote name should not be within another word
         const hasBrackets = emote.name.includes('(') || emote.name.includes(')');
         const emoteName = emote.name.replace(/\(|\)/g, '');
-        const emoteRegex = new RegExp(`\\b${emoteName}\\b`, `g`);
+        const emoteNameEsc = emoteName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const emoteRegex = new RegExp(`\\b${emoteNameEsc}\\b`, `g`);
         const matches = [...message.matchAll(emoteRegex)];
 
         //if no matches, continue
@@ -72,12 +73,12 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
             if (hasBrackets && message[match.index - 1] === '(') {
                 startOffset = -1;
                 endOffset = 2;
-            } 
+            }
 
             const emoteStart = match.index + startOffset;
             const emoteEnd = emoteStart + emoteName.length + endOffset - 1;
             const zeroWidth = emote.isZeroWidth ? 'zero-width' : '';
-            
+
             const emoteUrl = `https://cdn.7tv.app/emote/${emote.id}/3x.webp`;
             replacements.push({
                 start: emoteStart,
@@ -127,7 +128,7 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
         message = message.slice(0, start) + replaceText + message.slice(end + 1);
     }
 
-    
+
 
     return message;
 }
@@ -138,8 +139,8 @@ export const createBadges = async (userInfo: ChatUser) => {
 
     const badgeImg = [];
 
-    for (const [ setName, version ] of badges.entries()) {
-        
+    for (const [setName, version] of badges.entries()) {
+
         const set = badgeCache.find(set => set.id === setName);
         if (!set) continue;
 
@@ -158,18 +159,18 @@ export const createBadges = async (userInfo: ChatUser) => {
 export const getPronouns = async (userInfo: ChatUser) => {
     const { displayName } = userInfo;
     return await fetch(`https://pronouns.alejo.io/api/users/${displayName}`)
-    .then((response) => response.json())
-    .then((data) => {
-        if (data.length === 0) return;
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.length === 0) return;
 
-        const pronoun = pronounCache.find(p => p.name === data[0].pronoun_id);
-        if (!pronoun) return;
-        return pronoun.display;
-    })
-    .catch((err) => {
-        console.error(err);
-        return;
-    });
+            const pronoun = pronounCache.find(p => p.name === data[0].pronoun_id);
+            if (!pronoun) return;
+            return pronoun.display;
+        })
+        .catch((err) => {
+            console.error(err);
+            return;
+        });
 }
 
 export const getRedemption = async (rewardId: string | null, client: ApiClient) => {
