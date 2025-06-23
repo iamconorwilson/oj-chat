@@ -16,12 +16,12 @@ const server = () => {
     io = new Server(server);
 
     //check public folder for static files
-    if (!fs.existsSync("./dist/public/index.html")) {
-        console.error("Public folder not found. Run 'npm run build' to create it.");
+    if (!fs.existsSync("./public/index.html")) {
+        console.error("Public folder not found");
         process.exit(1);
     }
 
-    app.use(Express.static("./dist/public"));
+    app.use(Express.static("./public"));
 
     io.on("connection", (socket) => {
 

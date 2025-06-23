@@ -7,8 +7,7 @@
   "scripts": {
     "copyfiles": "copyfiles -u 1 src/public/**/* dist/",
     "clear": "rimraf dist",
-    "tsc": "tsc",
-    "build": "npm-run-all clear --parallel copyfiles tsc",
+    "build": "tsc",
     "start": "node dist/app.js",
     "auth": "npm run build && node dist/utils/getOAuth.js",
     "dev": "nodemon"
