@@ -5,10 +5,9 @@
     "rootDir": "./src",
     "moduleResolution": "NodeNext",
     "typeRoots": [
-            "./node_modules/@types",
-            "./@types"
-        ],
-
+      "./node_modules/@types",
+      "./@types"
+    ],
     "allowJs": false,
     "outDir": "./dist",
     "esModuleInterop": true,
@@ -19,6 +18,7 @@
   },
   "include": [
     "src/**/*",
-    "@types/**/*"
+    "@types/**/*",
+    "public"
   ],
 }

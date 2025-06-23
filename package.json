@@ -4,6 +4,9 @@
   "description": "",
   "main": "app.js",
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "copyfiles": "copyfiles -u 1 src/public/**/* dist/",
     "clear": "rimraf dist",

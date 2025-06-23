@@ -23,6 +23,14 @@ const server = () => {
 
     app.use(Express.static("./public"));
 
+    app.get("/health", (req, res) => {
+        res.status(200).json({
+            status: "ok",
+            version: version,
+            connectedUsers: socketCount
+        });
+    });
+
     io.on("connection", (socket) => {
 
         //set sockets to total number of connected sockets
