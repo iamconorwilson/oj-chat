@@ -1,6 +1,7 @@
 import { RefreshingAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
 import { ChatClient } from '@twurple/chat';
+import { EventSubWsListener } from '@twurple/eventsub-ws';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -10,7 +11,7 @@ dotenv.config({ quiet: true });
 const secretsPath = path.resolve(process.cwd(), process.env.SECRETS_PATH);
 
 export let client: ApiClient | null = null;
-export let chat: ChatClient | null = null;
+export let listener: EventSubWsListener | null = null;
 
 export async function setupAuth() {
     //if secrets file doesn't exist, warn user and exit
@@ -47,12 +48,9 @@ export async function setupAuth() {
 
     console.log(`Logged in as ${user.name}`);
 
-    chat = new ChatClient({ 
-        authProvider, 
-        channels: [user.name], 
-        rejoinChannelsOnReconnect: true, 
-        readOnly: true 
+    listener = new EventSubWsListener({
+        apiClient: client
     });
 
-    return { client, chat };
+    return { client, listener };
 }

@@ -15,12 +15,18 @@ if (authResult === false) {
     process.exit(1); // Exit the process with an error code
 }
 
-const { chat } = authResult;
+const { listener } = authResult;
+
+const targetUserId = process.env.TWITCH_USER_ID;
 
 try {
 
     // LOAD CACHES (Emotes, Badges, Pronouns)
     await getCaches();
+
+    listener.onChannelChatMessage(targetUserId, targetUserId, async (message) => {
+        await handleNewMessage(message.messageText, message);
+    });
 
     // EVENT LISTENERS
     chat.onMessage(async (channel, user, message, msg) => {

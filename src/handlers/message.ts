@@ -1,4 +1,5 @@
 import { ChatMessage, ChatUser } from '@twurple/chat';
+import { EventSubChannelChatMessageEvent } from '@twurple/eventsub-base';
 import { badgeCache, pronounCache, emoteCache } from './caches.js';
 import { getUserColor } from "../functions/utils.js";
 import { enqueue, processQueue } from './queue.js';
@@ -9,7 +10,7 @@ dotenv.config({ quiet: true });
 
 
 // HANDLERS
-export const handleNewMessage = async (message: string, msg: ChatMessage) => {
+export const handleNewMessage = async (message: string, msg: EventSubChannelChatMessageEvent) => {
 
     const { emoteOffsets, userInfo, id, isCheer } = msg;
 
