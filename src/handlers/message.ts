@@ -1,12 +1,74 @@
-import { ChatUser } from '@twurple/chat';
+import { ChatMessage, ChatUser } from '@twurple/chat';
 import { badgeCache, pronounCache, emoteCache } from './caches.js';
+import { getUserColor } from "../functions/utils.js";
+import { enqueue, processQueue } from './queue.js';
+import { client } from '../auth/twitch.js';
 
 import * as dotenv from 'dotenv';
-import { ApiClient } from '@twurple/api';
-dotenv.config();
+dotenv.config({ quiet: true });
 
 
-export const createMessageHtml = (message: string, twitchEmotes: Map<string, string[]>, isCheer: boolean) => {
+// HANDLERS
+export const handleNewMessage = async (message: string, msg: ChatMessage) => {
+
+    const { emoteOffsets, userInfo, id, isCheer } = msg;
+
+    console.log(`Added: ${id} - ${userInfo.displayName} - ${message}`);
+
+    const messageHtml = createMessageHtml(message, emoteOffsets, isCheer);
+
+    const badgeHtml = await createBadges(userInfo);
+
+    const redemption = msg.isRedemption ? await getRedemption(msg.rewardId) : null;
+
+    const highlight = msg.isHighlight;
+
+
+    const msgDetail = {
+        id: id,
+        message: messageHtml,
+        user: {
+            displayName: userInfo.displayName,
+            userId: userInfo.userId
+        },
+        badges: badgeHtml,
+        color: userInfo.color !== '' ? userInfo.color : getUserColor(userInfo.displayName),
+        pronouns: await getPronouns(userInfo),
+        redemption: redemption,
+        highlight: highlight
+    }
+
+    console.log(`Queued: ${id} - ${userInfo.displayName} - ${message}`);
+
+    enqueue('newMessage', msgDetail);
+    processQueue();
+};
+
+export const handleMessageRemove = (messageId: string) => {
+    console.log(`Removed: ${messageId}`);
+    enqueue('removeSingleMessage', { id: messageId });
+    processQueue();
+};
+
+export const removeUserMessages = async (user: string) => {
+    if (!client) throw new Error('Twitch client not initialized');
+
+    const userId = await client.users.getUserByName(user)
+    if (!userId) return;
+    console.log(`Removed user: ${userId.id}`);
+
+    enqueue('removeUserMessages', { id: userId.id });
+    processQueue();
+};
+
+export const clearAllMessages = () => {
+    console.log('Cleared chat');
+    enqueue('removeAllMessages', {});
+    processQueue();
+};
+
+// HELPERS
+const createMessageHtml = (message: string, twitchEmotes: Map<string, string[]>, isCheer: boolean) => {
     let replacements = [];
 
     // Handle cheers
@@ -133,7 +195,7 @@ export const createMessageHtml = (message: string, twitchEmotes: Map<string, str
     return message;
 }
 
-export const createBadges = async (userInfo: ChatUser) => {
+const createBadges = async (userInfo: ChatUser) => {
 
     const { badges } = userInfo;
 
@@ -156,7 +218,7 @@ export const createBadges = async (userInfo: ChatUser) => {
     return badgeImg;
 }
 
-export const getPronouns = async (userInfo: ChatUser) => {
+const getPronouns = async (userInfo: ChatUser) => {
     const { displayName } = userInfo;
     return await fetch(`https://pronouns.alejo.io/api/users/${displayName}`)
         .then((response) => response.json())
@@ -173,13 +235,13 @@ export const getPronouns = async (userInfo: ChatUser) => {
         });
 }
 
-export const getRedemption = async (rewardId: string | null, client: ApiClient) => {
+const getRedemption = async (rewardId: string | null) => {
+    if (!client) throw new Error('Twitch client not initialized');
     if (!rewardId) return;
     const redemption = await client.channelPoints.getCustomRewardById(process.env.TWITCH_USER_ID, rewardId);
     if (!redemption) return;
     return {
         title: redemption.title,
         cost: redemption.cost
-    }
+    };
 }
-

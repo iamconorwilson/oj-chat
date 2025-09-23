@@ -3,7 +3,7 @@ import axios from "axios";
 import * as dotenv from 'dotenv';
 import fs from 'fs';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const app = express();
 const port = process.env.PORT || 3000;

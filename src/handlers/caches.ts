@@ -1,6 +1,7 @@
 import axios from "axios";
 import { emoteUpdates } from "./websocket.js";
 import { ApiClient, HelixChatBadgeSet } from "@twurple/api";
+import { client } from "../auth/twitch.js";
 
 export const badgeCache: HelixChatBadgeSet[] = [];
 export const pronounCache: Pronoun[] = [];
@@ -8,13 +9,13 @@ export const emoteCache: Emote[] = [];
 
 let emoteSetId: string = '';
 
-export const getPronounCache = () => {
+const getPronounCache = () => {
     return axios.get("https://pronouns.alejo.io/api/pronouns")
     .then((response) => pronounCache.push(...response.data))
     .catch((err) => console.error(err));
 }
 
-export const getEmoteCache = async () => {
+const getEmoteCache = async () => {
     await getChannelEmotes(process.env.TWITCH_USER_ID);
     await getGlobalEmotes();
 
@@ -23,7 +24,9 @@ export const getEmoteCache = async () => {
     return Promise.resolve();
 }
 
-export const getBadgeCache = async (client: ApiClient) => {
+const getBadgeCache = async () => {
+    if (!client) throw new Error('Twitch client not initialized');
+
     const channelBadges = await client.chat.getChannelBadges(process.env.TWITCH_USER_ID);
     const globalBadges = await client.chat.getGlobalBadges();
 
@@ -85,3 +88,10 @@ const getGlobalEmotes = () => {
     });
 }
 
+export const getCaches = async (): Promise<void> => {
+    await Promise.all([
+        getBadgeCache(),
+        getEmoteCache(),
+        getPronounCache()
+    ]); 
+}

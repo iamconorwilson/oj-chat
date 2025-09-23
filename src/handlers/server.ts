@@ -1,7 +1,7 @@
 import Express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { getHistory } from "./queue.js";
+import { getHistory } from "./history.js";
 import fs from "fs";
 
 let io: Server

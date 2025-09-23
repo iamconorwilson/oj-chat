@@ -5,9 +5,12 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 import * as dotenv from 'dotenv';
-dotenv.config()
+dotenv.config({ quiet: true });
 
 const secretsPath = path.resolve(process.cwd(), process.env.SECRETS_PATH);
+
+export let client: ApiClient | null = null;
+export let chat: ChatClient | null = null;
 
 export async function setupAuth() {
     //if secrets file doesn't exist, warn user and exit
@@ -34,7 +37,7 @@ export async function setupAuth() {
 
     await authProvider.addUserForToken(tokenData, ['chat']);
 
-    const client = new ApiClient({ authProvider });
+    client = new ApiClient({ authProvider });
 
     const user = await client.users.getUserById(targetUserId);
 
@@ -44,7 +47,7 @@ export async function setupAuth() {
 
     console.log(`Logged in as ${user.name}`);
 
-    const chat = new ChatClient({ 
+    chat = new ChatClient({ 
         authProvider, 
         channels: [user.name], 
         rejoinChannelsOnReconnect: true, 

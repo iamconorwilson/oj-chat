@@ -1,6 +1,6 @@
 //GLOBAL DATA
 const globalData = {
-    ignoredUsers: ['robo_oj'],
+    ignoredUsers: ['robo_oj', 'sockubot', 'nightbot', 'streamlabs', 'streamelements', 'tangiabot'],
     hideCommands: true,
     messagesLimit: 20
 };
@@ -15,12 +15,10 @@ const container = document.getElementById("container");
 
 //INIT FUNCTION
 const init = async () => {
-    //if query params
     const urlParams = new URLSearchParams(window.location.search);
 
     //if url params has horizontal
     if (urlParams.has('horizontal')) {
-        //load horizontal css
         const css = document.createElement('link');
         css.rel = 'stylesheet';
         css.href = '/css/horizontal.css';
@@ -37,13 +35,11 @@ const init = async () => {
         document.documentElement.style.fontSize = '24px';
     }
 
-
     //load socket.io script
     const script = document.createElement('script');
     script.src = '/socket.io/socket.io.js';
     document.head.appendChild(script);
 
-    //once socket.io script is loaded
     script.onload = () => {
         const socket = io();
 
@@ -63,17 +59,28 @@ const init = async () => {
 
         socket.on("history", (history) => {
 
-            console.log(history);
-
-            // history.forEach(msg => {
-            //     if (msg.target === 'newMessage') {
-            //         eventQueue.push(msg.message);
-            //     }
-            // });
-
             console.log(`History: ${history.length} messages`);
 
-            // processEventQueue();
+            history.forEach(msg => {
+
+                switch (msg.target) {
+                    case 'removeUserMessages':
+                        onRemoveUserMsg(msg.message);
+                        break;
+                    case 'removeSingleMessage':
+                        onRemoveSingleMsg(msg.message);
+                        break;
+                    case 'removeAllMessages':
+                        onRemoveAllMsg();
+                        break;
+                    case 'newMessage':
+                        eventQueue.push(msg.message);
+                        break;
+                }
+
+            });
+
+            processEventQueue();
         });
 
         //on message
@@ -99,7 +106,6 @@ const init = async () => {
 const processEventQueue = () => {
     if (eventQueue.length > 0) {
         const nextEvent = eventQueue.shift();
-        console.log(JSON.stringify(nextEvent));
         onMsgEvent(nextEvent);
     }
 }
@@ -153,7 +159,8 @@ const buildUser = async (data) => {
 }
 
 const onMsgEvent = async (msg) => {
-    console.log(msg);
+    console.log({ target: 'newMessage', message: msg });
+
     const newMessageElement = await newMessage(msg);
 
     if (newMessageElement === undefined) return;
@@ -177,6 +184,7 @@ const onMsgEvent = async (msg) => {
 }
 
 const onRemoveUserMsg = (data) => {
+    console.log({ target: 'removeUserMessages', message: data });
     const { id } = data;
 
     const messages = container.querySelectorAll(`[data-userId="${id}"]`);
@@ -186,7 +194,8 @@ const onRemoveUserMsg = (data) => {
     });
 }
 
-const onRemoveSingleMsg = () => {
+const onRemoveSingleMsg = (data) => {
+    console.log({ target: 'removeSingleMessage', message: data });
     const { id } = data;
 
     const message = container.querySelector(`[data-msgId="${id}"]`);
@@ -195,10 +204,9 @@ const onRemoveSingleMsg = () => {
 }
 
 const onRemoveAllMsg = () => {
+    console.log({ target: 'removeAllMessages' });
     container.innerHTML = '';
 }
 
-
-
-//init
+//INIT
 init();
