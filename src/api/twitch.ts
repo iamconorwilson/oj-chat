@@ -95,13 +95,10 @@ export class TwitchProvider {
     const secretsFile = path.resolve(process.env.SECRETS_DIR || '', 'twitch_user_token.json');
     let oldUserToken: TwitchUserToken;
     try {
-      if (!await fs.stat(secretsFile)) {
-        console.error(`Twitch user token secrets file does not exist at path: ${secretsFile}`);
-      }
       const fileContent = await fs.readFile(secretsFile, 'utf-8');
       oldUserToken = JSON.parse(fileContent);
     } catch {
-      throw new Error('Twitch user token secrets file not found or invalid.');
+      throw new Error(`Twitch user token secrets file not found at path: ${secretsFile}`);
     }
     const params = new URLSearchParams({
       client_id: this.config.clientId,
