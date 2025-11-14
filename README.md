@@ -1,5 +1,5 @@
 # OJChat
-Simple application that displays onscreen Twitch chat with support for channel point redemptions, built using Twurple and Express.
+Simple application that displays onscreen Twitch chat with support for channel point redemptions, built using Express.
 
 ## Prerequisites
 * Twitch App Client ID and Secret - [Create a new application](https://dev.twitch.tv/console/apps)
@@ -23,9 +23,5 @@ Simple application that displays onscreen Twitch chat with support for channel p
     * `?transparent=true` - Transparent chat background
 
 ## Dependencies
-* [Twurple](https://twurple.js.org/)
 * [Express](https://expressjs.com/)
-* [socket.io](https://socket.io/)
-* [axios](https://axios-http.com/)
 * [dotenv](https://www.npmjs.com/package/dotenv)
-
