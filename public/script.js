@@ -35,7 +35,7 @@ const init = () => {
 };
 
 const wsConnect = () => {
-    const wsUrl = `ws://${window.location.host}/ws`;
+    const wsUrl = `wss://${window.location.host}/ws`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
