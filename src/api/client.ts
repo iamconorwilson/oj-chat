@@ -10,11 +10,12 @@ export const createClient = async () => {
 
   const queue = MessageQueue.getInstance();
 
-  const eventTypes = [
-    'channel.chat.message',
-    'channel.chat.clear',
-    'channel.chat.clear_user_messages',
-    'channel.chat.message_delete'
+  const eventSubs = [
+    { type: 'channel.chat.message', version: '1', condition: broadcasterAndUser },
+    { type: 'channel.chat.clear', version: '1', condition: broadcasterAndUser },
+    { type: 'channel.chat.clear_user_messages', version: '1', condition: broadcasterAndUser },
+    { type: 'channel.chat.message_delete', version: '1', condition: broadcasterAndUser },
+    { type: 'channel.shared_chat.begin', version: '1', condition: broadcasterOnly }
   ];
 
   listener.on('connect', async () => {
@@ -25,22 +26,21 @@ export const createClient = async () => {
     }
     const userId = me.id;
 
-    for (const eventType of eventTypes) {
+    for (const eventSub of eventSubs) {
+      const { type, version, condition } = eventSub;
+
       try {
-        await listener.subscribe(eventType, '1', {
-          broadcaster_user_id: userId,
-          user_id: userId
-        });
-        listener.on(eventType, (eventData) => {
+        await listener.subscribe(type, version, condition(userId));
+        listener.on(type, (eventData) => {
           const event = {
-            type: eventType,
+            type: type,
             data: eventData
           }
           queue.enqueue(event);
         });
-        console.log(`Subscribed to Twitch event: ${eventType}`);
+        console.log(`Subscribed to Twitch event: ${type}`);
       } catch (error) {
-        console.error(`Subscription to ${eventType} failed:`, error);
+        console.error(`Subscription to ${type} failed:`, error);
       }
     }
 
@@ -56,3 +56,14 @@ export const createClient = async () => {
 
   return listener;
 }
+
+// HELPER FUNCTIONS
+
+const broadcasterAndUser = (userId: string) => ({
+  broadcaster_user_id: userId,
+  user_id: userId
+});
+
+const broadcasterOnly = (userId: string) => ({
+  broadcaster_user_id: userId
+});

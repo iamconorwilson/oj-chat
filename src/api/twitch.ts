@@ -22,8 +22,8 @@ interface TwitchUserToken extends TwitchAppToken {
 }
 
 export class TwitchProvider {
-  private static readonly API_BASE_URL = process.env.TWITCH_HELIX_ENDPOINT || 'https://api.twitch.tv/helix';
-  private static readonly API_AUTH_URL = process.env.TWITCH_AUTH_ENDPOINT || 'https://id.twitch.tv/oauth2';
+  private API_BASE_URL: string | undefined;
+  private API_AUTH_URL: string | undefined;
 
   private static instance: TwitchProvider | null = null;
   private static instancePromise: Promise<TwitchProvider> | null = null;
@@ -40,6 +40,9 @@ export class TwitchProvider {
 
   private constructor(config: TwitchApiConfig) {
     this.config = config;
+    this.API_BASE_URL = process.env.TWITCH_HELIX_ENDPOINT;
+    this.API_AUTH_URL = process.env.TWITCH_AUTH_ENDPOINT;
+    
     this.users = new UsersApi(this);
     this.chat = new ChatApi(this);
     this.channelPoints = new ChannelPointsApi(this);
@@ -81,7 +84,7 @@ export class TwitchProvider {
       client_secret: this.config.clientSecret,
       grant_type: 'client_credentials',
     });
-    const response = await fetch(`${TwitchProvider.API_AUTH_URL}/token`, { method: 'POST', body: params });
+    const response = await fetch(`${this.API_AUTH_URL}/token`, { method: 'POST', body: params });
     if (!response.ok) throw new Error(`Failed to fetch App Access Token: ${await response.text()}`);
     const newToken = await response.json();
     this.appToken = {
@@ -106,7 +109,7 @@ export class TwitchProvider {
       grant_type: 'refresh_token',
       refresh_token: oldUserToken.refreshToken,
     });
-    const response = await fetch(`${TwitchProvider.API_AUTH_URL}/token`, {
+    const response = await fetch(`${this.API_AUTH_URL}/token`, {
       method: 'POST',
       body: params,
     });
@@ -147,7 +150,7 @@ export class TwitchProvider {
     body?: object
   ): Promise<T> {
     const accessToken = await this.getValidToken(tokenType);
-    const url = `${TwitchProvider.API_BASE_URL}/${endpoint}`;
+    const url = `${this.API_BASE_URL}/${endpoint}`;
     const headers = {
       'Authorization': `Bearer ${accessToken}`,
       'Client-Id': this.config.clientId,

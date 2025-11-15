@@ -85,8 +85,23 @@ interface TwitchChannelChatClearUserMessages {
   target_user_login: string;
 }
 
+interface TwitchChannelSharedChat {
+  session_id: string;
+  broadcaster_user_id: string;
+  broadcaster_user_name: string;
+  broadcaster_user_login: string;
+  host_broadcaster_user_id: string;
+  host_broadcaster_user_name: string;
+  host_broadcaster_user_login: string;
+  participants: {
+    broadcaster_user_id: string;
+    broadcaster_user_name: string;
+    broadcaster_user_login: string;
+  }[];
+}
+
 interface TwitchChannelChatMessageDelete extends TwitchChannelChatClearUserMessages {
   message_id: string;
 }
 
-type Messages = TwitchChannelChatClear | TwitchChannelChatClearUserMessages | TwitchChannelChatMessage | TwitchChannelChatMessageDelete;
+type Messages = TwitchChannelChatClear | TwitchChannelChatClearUserMessages | TwitchChannelChatMessage | TwitchChannelChatMessageDelete | TwitchChannelSharedChat;

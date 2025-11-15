@@ -3,7 +3,7 @@ import WebSocket from 'ws';
 import type { TwitchProvider } from '../twitch.js';
 
 export class TwitchEventSubClient extends EventEmitter {
-  private static readonly WEBSOCKET_URL = process.env.TWITCH_WS_ENDPOINT || 'wss://eventsub.wss.twitch.tv/ws';
+  private WEBSOCKET_URL: string | undefined;
 
   private apiClient: TwitchProvider;
   private ws: WebSocket | null = null;
@@ -18,8 +18,14 @@ export class TwitchEventSubClient extends EventEmitter {
    * Connects to the Twitch EventSub WebSocket server.
    */
   public async connect() {
+    
+    this.WEBSOCKET_URL = process.env.TWITCH_WS_ENDPOINT;
 
-    const wsUrl = `${TwitchEventSubClient.WEBSOCKET_URL}`;
+    if (!this.WEBSOCKET_URL) {
+      throw new Error('Twitch EventSub WebSocket URL is not defined in environment variables.');
+    }
+
+    const wsUrl = `${this.WEBSOCKET_URL}`;
     this.ws = new WebSocket(wsUrl);
 
     this.ws.on('open', () => {

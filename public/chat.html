@@ -5,45 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
     <title>OJChat</title>
+    <link rel="icon" href="favicon.ico">
+    <style>
+        #container-wrap { opacity: 0; }
+    </style>
 </head>
 <body>
     <div id="container-wrap">
         <div id="container"></div>
     </div>
     <script>
+        // Fade in container after both script and stylesheet are loaded
+        (function() {
+            const now = Math.floor(Date.now() / 1000);
+            let scriptLoaded = false;
+            let stylesheetLoaded = false;
 
-        // current unix timestamp
-        const now = Math.floor(Date.now() / 1000);
-
-        // load script with javascript
-        const script = document.createElement('script');
-        script.src = 'script.js?v=' + now;
-
-        // load stylesheet with javascript
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'css/styles.css?v=' + now;
-
-        let scriptLoaded = false;
-        let stylesheetLoaded = false;
-
-        script.onload = () => {
-            scriptLoaded = true;
-            if (stylesheetLoaded) {
-                document.getElementById('container-wrap').style.opacity = '1';
+            function showContainer() {
+                if (scriptLoaded && stylesheetLoaded) {
+                    document.getElementById('container-wrap').style.opacity = '1';
+                }
             }
-        };
 
-        link.onload = () => {
-            stylesheetLoaded = true;
-            if (scriptLoaded) {
-                document.getElementById('container-wrap').style.opacity = '1';
-            }
-        };
+            // Load stylesheet
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'css/styles.css?v=' + now;
+            link.onload = function() {
+                stylesheetLoaded = true;
+                showContainer();
+            };
+            document.head.appendChild(link);
 
-        document.head.appendChild(script);
-        document.head.appendChild(link);
-
+            // Load script
+            const script = document.createElement('script');
+            script.src = 'script.js?v=' + now;
+            script.defer = true;
+            script.onload = function() {
+                scriptLoaded = true;
+                showContainer();
+            };
+            document.head.appendChild(script);
+        })();
     </script>
 </body>
 </html>
