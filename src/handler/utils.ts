@@ -118,8 +118,9 @@ export function parseMessageParts(messageParts: TwitchChannelChatMessageFragment
 }
 
 export function parseBadges(
-    badges: { set_id: string; id: string; info: string; }[]
+    badges: { set_id: string; id: string; info: string; }[] | null
 ): { title: string; url: string; }[] {
+    if (!badges || badges.length === 0) return [];
     const badgeCache = BadgeCache.getInstance();
     return badges
         .map(badge => {

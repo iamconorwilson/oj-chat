@@ -24,6 +24,7 @@
             width: 100%;
             height: 100vh;
             border: none;
+            display: block;
         }
     </style>
 </head>
@@ -31,16 +32,12 @@
 <body>
 
     <script>
-        //passthrough query params
+        // Pass through query params and add cache-busting version
         const urlParams = new URLSearchParams(window.location.search);
-        
-        const now = Math.floor(Date.now() / 1000);
-        urlParams.set('v', now);
+        urlParams.set('v', Math.floor(Date.now() / 1000));
         const iframe = document.createElement('iframe');
         iframe.src = 'chat.html?' + urlParams.toString();
-
         document.body.appendChild(iframe);
-
     </script>
 </body>
 

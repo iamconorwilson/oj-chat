@@ -74,6 +74,9 @@ const wsConnect = () => {
             case "chatClear":
                 onRemoveAllMsg();
                 break;
+            case "chatSharedChat":
+                onSharedChatMsg(msg.data);
+                break;
             default:
                 console.warn(`Unknown message type: ${msg.type}`);
         }
@@ -124,7 +127,7 @@ const buildUserBox = async (data) => {
     let badge = '';
 
     if (sharedChat) {
-        badge += `<img alt="" src="${sharedChat.fromChannelProfileImageUrl}" class="badge shared-chat" title="${sharedChat.fromChannelDisplayName}"> `;
+        badge += `<img alt="" src="${sharedChat.fromChannelProfileImageUrl}" class="badge shared-chat-source" title="${sharedChat.fromChannelDisplayName}">`;
     }
     if (user.pronouns) {
         badge += `<span class="pronoun">${user.pronouns}</span>`;
@@ -174,6 +177,24 @@ const onRemoveSingleMsg = (data) => {
 
 const onRemoveAllMsg = () => {
     container.innerHTML = '';
+};
+
+const onSharedChatMsg = (data) => {
+    const elements = [];
+    if (!data || !data.participants || data.participants.length === 0) return;
+    //for each participant, build a message
+    data.participants.forEach(async (participant) => {
+        const img = `<img alt="" src="${participant.profileImageUrl}" class="profile" title="${participant.displayName}"> `;
+        elements.push(img);
+    });
+    const innerHtml = `<div class="profile-group">${elements.join('')}</div><span>Shared Chat started!</span>`;
+
+    const html = document.createElement('div');
+    html.classList.add('message-row');
+    html.classList.add('shared-chat-message');
+    html.innerHTML = innerHtml;
+
+    container.appendChild(html);
 };
 
 // INIT

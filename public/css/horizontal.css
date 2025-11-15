@@ -1,3 +1,6 @@
+/* =========================
+   Layout Overrides
+   ========================= */
 body {
     margin: 0;
 }
@@ -16,15 +19,23 @@ body {
     -webkit-mask-image: linear-gradient(to right, transparent 1%, black 200px);
 }
 
-#container>div {
+#container > div {
     flex-direction: row;
+    align-items: center;
 }
 
+/* =========================
+   Message Overrides
+   ========================= */
 .message-row {
     margin-top: 0;
     gap: 10px;
     border-radius: 20px;
-    padding: 8px 16px;
+    padding: 4px 16px;
+}
+
+.message-row:has(.shared-chat-source) {
+    padding-left: 9px;
 }
 
 .user-box {
