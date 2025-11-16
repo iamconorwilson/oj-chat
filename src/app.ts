@@ -1,5 +1,6 @@
-const envFile = process.env.NODE_ENV === 'development' ? '.env.dev' : '';
-process.loadEnvFile(envFile);
+if (process.env.NODE_ENV !== 'production') {
+  process.loadEnvFile('.env.dev');
+}
 
 import { Server } from './server.js';
 import { createClient } from './api/client.js';
@@ -8,9 +9,11 @@ import { createCaches } from './handler/caches.js';
 
 async function main() {
 
-  await createCaches();
-  await createClient();
-  await messageHandler();
+  await Promise.all([
+    createCaches(),
+    createClient(),
+    messageHandler()
+  ]);
   Server.getInstance();
 
 }
