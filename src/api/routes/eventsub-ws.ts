@@ -3,22 +3,36 @@ import WebSocket from 'ws';
 import type { TwitchProvider } from '../twitch.js';
 
 export class TwitchEventSubClient extends EventEmitter {
-  private WEBSOCKET_URL: string | undefined;
+  private static instance: TwitchEventSubClient | null = null; // Singleton instance
 
+  private WEBSOCKET_URL: string | undefined;
   private apiClient: TwitchProvider;
   private ws: WebSocket | null = null;
   private sessionId: string | null = null;
 
-  constructor(apiClient: TwitchProvider) {
+  private constructor(apiClient: TwitchProvider) { // Make constructor private
     super();
     this.apiClient = apiClient;
+  }
+
+  // Singleton accessor
+  public static getInstance(apiClient?: TwitchProvider): TwitchEventSubClient {
+    if (!TwitchEventSubClient.instance) {
+      if (!apiClient) throw new Error('apiClient must be provided on first use');
+      TwitchEventSubClient.instance = new TwitchEventSubClient(apiClient);
+    }
+    return TwitchEventSubClient.instance;
+  }
+
+  public static hasInstance(): boolean {
+    return TwitchEventSubClient.instance !== null;
   }
 
   /**
    * Connects to the Twitch EventSub WebSocket server.
    */
   public async connect() {
-    
+
     this.WEBSOCKET_URL = process.env.TWITCH_WS_ENDPOINT;
 
     if (!this.WEBSOCKET_URL) {
@@ -51,15 +65,29 @@ export class TwitchEventSubClient extends EventEmitter {
   }
 
   /**
+   * Returns the underlying WebSocket instance.
+   */
+  public getWebSocket() {
+    return this.ws;
+  }
+
+  /**
+   * Checks if the WebSocket connection is open.
+   */
+  public async isConnected(): Promise<boolean> {
+    return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
+  }
+
+  /**
    * Handles incoming WebSocket messages and emits corresponding events.
    */
   private handleMessage(message: TwitchEventSubMessage) {
     switch (message.metadata.message_type) {
-      
+
       case 'session_welcome': {
         const welcomePayload = message.payload as WelcomePayload;
         this.sessionId = welcomePayload.session.id;
-      
+
         this.emit('connect', this.sessionId);
         break;
       }
@@ -67,7 +95,7 @@ export class TwitchEventSubClient extends EventEmitter {
         const notifyPayload = message.payload as NotificationPayload;
         const eventType = notifyPayload.subscription.type;
         const eventData = notifyPayload.event;
-        
+
         this.emit(eventType, eventData);
         break;
       }
@@ -76,10 +104,10 @@ export class TwitchEventSubClient extends EventEmitter {
       }
       case 'session_reconnect': {
         this.ws?.close();
-        this.connect(); 
+        this.connect();
         break;
       }
-      case 'revocation': {  
+      case 'revocation': {
         const revocationPayload = message.payload as NotificationPayload;
         const revokedSub = revocationPayload.subscription;
         console.warn(`Twitch EventSub WS subscription revoked: ${revokedSub.type} (Status: ${revokedSub.status})`);
@@ -128,6 +156,9 @@ export class TwitchEventSubClient extends EventEmitter {
     }
   }
 
+  /**
+   * Disconnects from the Twitch EventSub WebSocket server.
+   */
   public disconnect() {
     this.ws?.close();
   }

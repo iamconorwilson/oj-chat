@@ -6,7 +6,7 @@ export const createClient = async () => {
 
   const client = await TwitchProvider.getInstance();
 
-  const listener = new TwitchEventSubClient(client);
+  const listener = TwitchEventSubClient.getInstance(client);
 
   const queue = MessageQueue.getInstance();
 
@@ -44,17 +44,14 @@ export const createClient = async () => {
       }
     }
 
-    listener.on('disconnect', () => {
-      console.warn('EventSub client disconnected.');
-      listener.connect();
+    listener.on('revocation', (revokedSub) => {
+      console.warn(`Subscription revoked: ${revokedSub.type} (Status: ${revokedSub.status})`);
     });
 
   });
+  
+  console.log('Twitch EventSub listener ready to connect.');
 
-
-  await listener.connect();
-
-  return listener;
 }
 
 // HELPER FUNCTIONS

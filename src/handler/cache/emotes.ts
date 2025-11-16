@@ -1,4 +1,4 @@
-import ws from 'ws';
+import { SevenTVWebSocket } from './SevenTVWebSocket.js';
 import { TwitchProvider } from '../../api/twitch.js';
 
 interface Emote {
@@ -17,6 +17,12 @@ export class EmoteCache {
 
     private static instance: EmoteCache;
 
+    private seventvWs: SevenTVWebSocket | undefined;
+
+    public getSevenTVWebSocket(): SevenTVWebSocket | undefined {
+        return this.seventvWs;
+    }
+
     private constructor() {
         this.initialize();
     }
@@ -26,6 +32,10 @@ export class EmoteCache {
             EmoteCache.instance = new EmoteCache();
         }
         return EmoteCache.instance;
+    }
+
+    public static hasInstance(): boolean {
+        return !!EmoteCache.instance;
     }
 
     private async initialize(): Promise<void> {
@@ -40,7 +50,7 @@ export class EmoteCache {
         const globalEmotes = this.fetch7tvGlobalEmotes();
         Promise.all([channelEmotes, globalEmotes]).then((results) => {
             this.emotes = [...results[0], ...results[1]];
-            this.create7tvWebsocket();
+            this.prepare7tvWebSocket();
         });
     }
 
@@ -85,64 +95,26 @@ export class EmoteCache {
         }));
     }
 
-    private async create7tvWebsocket(): Promise<void> {
-        if (!this.base7tvWsUrl) return console.error('7TV WebSocket endpoint is not defined in environment variables.');
-        const socket = new ws(this.base7tvWsUrl);
-
-
-        const payload = {
-            "op": 35,
-            "d": {
-                "type": "emote_set.update",
-                "condition": {
-                    "object_id": this.emoteSetId,
-                }
-            }
-        }
-
-        await new Promise((resolve) => {
-            socket.on("open", () => {
-                console.log(`Connected to 7TV Websocket`);
-                socket.send(JSON.stringify(payload))
-                resolve(true);
-            });
+    private prepare7tvWebSocket(): void {
+        this.seventvWs = SevenTVWebSocket.getInstance();
+        this.seventvWs.setEmoteSetId(this.emoteSetId);
+        this.seventvWs.on('emoteAdded', (emote: Emote) => {
+            this.addEmoteToCache(emote);
         });
-
-        socket.on("message", (data) => {
-            //data from buffer to object
-            const msg = JSON.parse(data.toString());
-
-            //if msg.op is 0 and msg.d.type is emote_set.update
-            if (msg.op === 0 && msg.d.type === "emote_set.update") {
-                const body = msg.d.body;
-
-                console.log('Recieved 7TV Emote Update')
-
-                //if body.pushed exists
-                if (body.pushed) {
-                    //for each emote in body.pushed
-                    body.pushed.forEach((data: {value: {id: string, name: string}}) => {
-                        const emote = {
-                            id: data.value.id,
-                            name: data.value.name,
-                            source: '7TV'
-                        }
-
-                        this.addEmoteToCache(emote);
-                    });
-                }
-
-                //if body.pulled exists
-                if (body.pulled) {
-                    //for each emote in body.pulled
-                    body.pulled.forEach((data: {old_value: {id: string}}) => {
-                        if (!data.old_value) return;
-                        this.removeEmoteFromCache(data.old_value.id);
-                    });
-                }
-            }
+        this.seventvWs.on('emoteRemoved', (emoteId: string) => {
+            this.removeEmoteFromCache(emoteId);
         });
-
+        this.seventvWs.on('connected', () => {
+            console.log('Connected to 7TV WebSocket');
+        });
+        this.seventvWs.on('closed', () => {
+            console.log('7TV WebSocket connection closed.');
+        });
+        this.seventvWs.on('error', (error: unknown) => {
+            console.error('7TV WebSocket error:', error);
+        });
+        console.log('7TV WebSocket listener ready to connect.');
     }
+
 }
 
