@@ -115,6 +115,7 @@ export class EmoteCache extends EventEmitter {
             this.wsConnected = true;
             this.ws?.send(JSON.stringify(payload));
             this.emit('connected');
+            console.log('Connected to 7TV WebSocket');
             // Refresh cache on connect
             this.refreshEmoteCache();
         });
@@ -152,6 +153,7 @@ export class EmoteCache extends EventEmitter {
         if (this.ws && this.wsConnected) {
             this.ws.close();
             this.wsConnected = false;
+            console.log('7TV WebSocket disconnected');
         }
     }
 

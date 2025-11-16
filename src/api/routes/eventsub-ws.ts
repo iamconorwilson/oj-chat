@@ -52,10 +52,10 @@ export class TwitchEventSubClient extends EventEmitter {
     });
 
     this.ws.on('close', () => {
-      console.log('Twitch EventSub WS connection closed.');
       this.emit('disconnect');
       this.sessionId = null;
       this.ws = null;
+      console.log('Twitch EventSub disconnected');
     });
 
     this.ws.on('error', (error) => {
