@@ -80,16 +80,10 @@ export async function parseMessageParts(messageParts: TwitchChannelChatMessageFr
     const emoteCacheInstance = await EmoteCache.getInstance();
     const emoteCache = emoteCacheInstance.getEmotes();
     const emoteMap = new Map<string, string>();
-    const emoteNames: string[] = [];
 
     for (const emote of emoteCache) {
         emoteMap.set(emote.name, `https://cdn.7tv.app/emote/${emote.id}/3x.webp`);
-        emoteNames.push(escapeRegExp(emote.name));
     }
-
-    const emoteRegex = emoteNames.length
-        ? new RegExp(`\\b(${emoteNames.join('|')})\\b`, 'g')
-        : null;
 
     return messageParts.map((part) => {
         switch (part.type) {
@@ -103,13 +97,11 @@ export async function parseMessageParts(messageParts: TwitchChannelChatMessageFr
                 return escapeHTML(part.mention.user_name);
             }
             case "text": {
-                if (!emoteRegex) return escapeHTML(part.text);
-                const segments = part.text.split(emoteRegex);
-                return segments.map(segment =>
-                    emoteMap.has(segment)
-                        ? `<img class="emote" src="${emoteMap.get(segment)}" alt="${escapeHTML(segment)}" />`
-                        : escapeHTML(segment)
-                ).join('');
+                 return part.text.split(/\s+/).map(token =>
+                    emoteMap.has(token)
+                        ? `<img class="emote" src="${emoteMap.get(token)}" alt="${escapeHTML(token)}" />`
+                        : escapeHTML(token)
+                ).join(' ');
             }
             default: {
                 return '';
