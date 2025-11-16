@@ -1,8 +1,7 @@
 import express from "express";
-import * as dotenv from 'dotenv';
 import fs from 'fs';
 
-dotenv.config({ quiet: true });
+process.loadEnvFile();
 
 const app = express();
 const port = process.env.PORT || 3000;
