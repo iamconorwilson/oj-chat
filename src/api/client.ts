@@ -50,7 +50,7 @@ export const createClient = async () => {
 
   });
   
-  console.log('Twitch EventSub listener ready to connect.');
+  console.log('Twitch EventSub listener ready to connect');
 
 }
 
