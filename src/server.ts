@@ -39,7 +39,8 @@ export class Server {
       // Ensure Twitch EventSub WS connection
       const twitchListener = await runWithRetry(twitchConnect);
 
-      const seventvListener = await runWithRetry(seventvConnect);
+
+      const emoteListener = await runWithRetry(emoteConnect);
 
       ws.send(JSON.stringify({ type: 'version', data: version }));
 
@@ -54,11 +55,11 @@ export class Server {
         console.log(`A user disconnected. Total clients: ${this.wss.clients.size}`);
         if (this.wss.clients.size === 0) {
           console.log('No clients connected. Disconnecting from Twitch EventSub WS and 7TV WebSocket.');
-          if (twitchListener && await twitchListener.isConnected()) {
+          if (twitchListener && twitchListener.isConnected()) {
             twitchListener.disconnect();
           }
-          if (seventvListener && seventvListener.isConnected()) {
-            seventvListener.disconnect();
+          if (emoteListener && emoteListener.isConnected()) {
+            emoteListener.disconnect();
           }
         }
       });
@@ -66,7 +67,7 @@ export class Server {
 
     this.app.get('/health', async (req, res) => {
       const listener = TwitchEventSubClient.getInstance();
-      const twitchConnected = (listener && await listener.isConnected()) ? true : false;
+      const twitchConnected = (listener && listener.isConnected()) ? true : false;
 
       res.status(200).json({
         status: 'OK',
@@ -100,29 +101,21 @@ function formatUptime(seconds: number): string {
 }
 
 async function twitchConnect() {
-  if (TwitchEventSubClient.hasInstance()) {
     const listener = TwitchEventSubClient.getInstance();
-    if (!(await listener.isConnected())) {
+    if (!listener) throw new Error('Listener singleton not yet created.');
+    if (!listener.isConnected()) {
       await listener.connect();
       return listener;
     }
     return listener;
-  } else {
-    throw new Error('Listener singleton not yet created.');
-  }
 
 }
 
-async function seventvConnect() {
-  if (EmoteCache.hasInstance()) {
-    const emoteCache = EmoteCache.getInstance();
-    const seventvWs = emoteCache.getSevenTVWebSocket();
-    if (seventvWs && !seventvWs.isConnected()) {
-      seventvWs.connect();
-      return seventvWs;
-    }
-    return seventvWs;
-  } else {
-    throw new Error('EmoteCache singleton not yet created.');
+async function emoteConnect() {
+  const emoteCache = await EmoteCache.getInstance();
+  if (!emoteCache) throw new Error('EmoteCache singleton not yet created.');
+  if (!emoteCache.isConnected()) {
+    emoteCache.connect();
   }
+  return emoteCache;
 }

@@ -25,7 +25,7 @@ const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
 
   const userColor = color || getUserColor(chatter_user_name);
   const isHighlight = message_type === 'channel_points_highlighted';
-  const messageHtml = parseMessageParts(message.fragments);
+  const messageHtml = await parseMessageParts(message.fragments);
   const badgesArray = parseBadges(badgeArray);
 
   // Run async calls in parallel

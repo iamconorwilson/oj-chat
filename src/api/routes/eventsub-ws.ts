@@ -74,7 +74,7 @@ export class TwitchEventSubClient extends EventEmitter {
   /**
    * Checks if the WebSocket connection is open.
    */
-  public async isConnected(): Promise<boolean> {
+  public isConnected(): boolean {
     return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
   }
 

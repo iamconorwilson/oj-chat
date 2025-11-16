@@ -76,8 +76,9 @@ export async function getSharedChat(
     };
 }
 
-export function parseMessageParts(messageParts: TwitchChannelChatMessageFragment[]): string {
-    const emoteCache = EmoteCache.getInstance().getEmotes();
+export async function parseMessageParts(messageParts: TwitchChannelChatMessageFragment[]): Promise<string> {
+    const emoteCacheInstance = await EmoteCache.getInstance();
+    const emoteCache = emoteCacheInstance.getEmotes();
     const emoteMap = new Map<string, string>();
     const emoteNames: string[] = [];
 
