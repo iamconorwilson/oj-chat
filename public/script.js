@@ -93,12 +93,32 @@ let queueProcessing = false;
 const processEventQueue = () => {
     if (queueProcessing || eventQueue.length === 0) return;
     queueProcessing = true;
-    requestAnimationFrame(async () => {
-        const nextEvent = eventQueue.shift();
-        await onMsgEvent(nextEvent);
+    scheduleFrame(async () => {
+        // Process multiple items when hidden to keep the queue from growing too large.
+        const BATCH_WHEN_VISIBLE = 1;
+        const BATCH_WHEN_HIDDEN = 20;
+        const batchSize = (typeof document !== 'undefined' && document.visibilityState === 'visible') ? BATCH_WHEN_VISIBLE : BATCH_WHEN_HIDDEN;
+
+        for (let i = 0; i < batchSize && eventQueue.length > 0; i++) {
+            const nextEvent = eventQueue.shift();
+            try {
+                await onMsgEvent(nextEvent);
+            } catch (err) {
+                console.error('Error processing queued event:', err);
+            }
+        }
+
         queueProcessing = false;
         if (eventQueue.length > 0) processEventQueue();
     });
+};
+
+const scheduleFrame = (cb) => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        requestAnimationFrame(cb);
+    } else {
+        setTimeout(cb, 50);
+    }
 };
 
 const newMessage = async (data) => {
@@ -132,9 +152,13 @@ const buildUserBox = async (data) => {
     if (user.pronouns) {
         badge += `<span class="pronoun">${user.pronouns}</span>`;
     }
-    badges.forEach(b => {
-        badge += `<img alt="" src="${b.url}" class="badge ${b.title}"> `;
-    });
+    if (badges && badges.length > 0) {
+        badge += '<span class="badges">';
+        badges.forEach(b => {
+            badge += `<img alt="" src="${b.url}" class="badge ${b.title}"> `;
+        });
+        badge += '</span>';
+    }
     const redemptionHtml = redemption ? `<span class="redemption">Redeemed <span class="title">${redemption.title}</span> <span class="cost">${redemption.cost}</span></span>` : '';
 
     return `<span class="user-box">${badge} <span style="color: ${user.color}">${user.displayName}</span>${redemptionHtml}</span>`;
@@ -145,7 +169,7 @@ const onMsgEvent = async (msg) => {
     const newMessageElement = await newMessage(msg);
     if (!newMessageElement) return;
 
-    if (eventQueue.length > 10) {
+    if (eventQueue.length > 10 || document.visibilityState !== 'visible') {
         newMessageElement.style.animation = 'none';
     }
 

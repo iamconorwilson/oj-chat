@@ -1,6 +1,6 @@
 import { MessageQueue } from '../queue.js';
 import { getUserColor, getPronouns, getSharedChat, getRedemption, parseMessageParts, parseBadges } from './utils.js';
-import { TwitchProvider } from '../api/twitch.js';
+import { TwitchProvider } from '../providers/twitch/api.js';
 import { Server } from '../server.js';
 // --- Handler Functions ---
 
