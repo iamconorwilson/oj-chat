@@ -1,4 +1,4 @@
-import { TwitchProvider } from '../../api/twitch.js';
+import { TwitchProvider } from '../../providers/twitch/api.js';
 
 type BadgeVersion = {
   id: string;

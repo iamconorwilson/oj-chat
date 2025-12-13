@@ -1,6 +1,6 @@
 import ws from 'ws';
 import { EventEmitter } from 'events';
-import { TwitchProvider } from '../../api/twitch.js';
+import { TwitchProvider } from '../../providers/twitch/api.js';
 
 interface Emote {
     id: string;
@@ -17,6 +17,7 @@ export class EmoteCache extends EventEmitter {
     private userId: string = '';
     private ws?: ws;
     private wsConnected: boolean = false;
+    private sendQueue: WeakMap<ws, string[]> = new WeakMap();
 
     private constructor() {
         super();
@@ -76,7 +77,7 @@ export class EmoteCache extends EventEmitter {
         }
         const data = await response.json();
         this.emoteSetId = data.emote_set.id;
-        return data.emote_set.emotes.map((emote: {id: string, name: string}) => ({
+        return data.emote_set.emotes.map((emote: { id: string, name: string }) => ({
             id: emote.id,
             name: emote.name,
             source: '7TV'
@@ -90,11 +91,42 @@ export class EmoteCache extends EventEmitter {
             return [];
         }
         const data = await response.json();
-        return data.emotes.map((emote: {id: string, name: string}) => ({
+        return data.emotes.map((emote: { id: string, name: string }) => ({
             id: emote.id,
             name: emote.name,
             source: '7TV'
         }));
+    }
+
+    private sendOrQueue(socket: ws | undefined, payload: string): void {
+        if (!socket) return;
+        const READY_OPEN = 1;
+        try {
+            if (socket.readyState === READY_OPEN) {
+                socket.send(payload);
+                return;
+            }
+        } catch (e) {
+            console.error('Error sending payload via WebSocket, adding to queue', e);
+        }
+
+        let q = this.sendQueue.get(socket);
+        if (!q) {
+            q = [];
+            this.sendQueue.set(socket, q);
+            const onOpen = () => {
+                try {
+                    while (q!.length && socket.readyState === READY_OPEN) {
+                        socket.send(q!.shift()!);
+                    }
+                } finally {
+                    socket.removeListener('open', onOpen);
+                    this.sendQueue.delete(socket);
+                }
+            };
+            socket.on('open', onOpen);
+        }
+        q.push(payload);
     }
 
     public connect(): void {
@@ -103,6 +135,19 @@ export class EmoteCache extends EventEmitter {
             return;
         }
         if (this.wsConnected) return;
+
+        // clean up any previous socket so we don't reuse a CONNECTING instance
+        if (this.ws) {
+            try {
+                this.ws.removeAllListeners();
+                // terminate immediately if available
+                this.ws.terminate?.();
+            } catch (e) {
+                console.error('Error cleaning up previous WebSocket:', e);
+            }
+            this.ws = undefined;
+        }
+
         this.ws = new ws(this.base7tvWsUrl);
         const payload = {
             op: 35,
@@ -113,7 +158,8 @@ export class EmoteCache extends EventEmitter {
         };
         this.ws.on('open', () => {
             this.wsConnected = true;
-            this.ws?.send(JSON.stringify(payload));
+            // use sendOrQueue to avoid sending while still CONNECTING
+            this.sendOrQueue(this.ws, JSON.stringify(payload));
             this.emit('connected');
             console.log('Connected to 7TV WebSocket');
             // Refresh cache on connect

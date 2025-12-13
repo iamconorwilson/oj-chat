@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { PronounCache } from "./cache/pronouns.js";
-import { TwitchProvider } from "../api/twitch.js";
+import { TwitchProvider } from "../providers/twitch/api.js";
 import { EmoteCache } from "./cache/emotes.js";
 import { BadgeCache } from "./cache/badges.js";
 

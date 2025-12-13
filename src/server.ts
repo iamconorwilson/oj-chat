@@ -1,7 +1,8 @@
 import Express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
-import { TwitchEventSubClient } from './api/routes/eventsub-ws.js';
+import { TwitchEventSubClient } from './providers/twitch/routes/eventsub-ws.js';
+import { reconnectClient, disconnectClient } from './providers/twitch/client.js';
 import { EmoteCache } from './handler/cache/emotes.js';
 import { runWithRetry } from './utils/runWithRetry.js';
 
@@ -12,6 +13,8 @@ export class Server {
   private app!: Express.Express;
   private server!: ReturnType<typeof createServer>;
   private wss!: WebSocketServer;
+  private disconnectTimer?: NodeJS.Timeout;
+  private readonly DISCONNECT_DELAY = 3 * 60 * 1000; // 3 minutes
 
   private constructor() {
     this.initialize();
@@ -36,9 +39,14 @@ export class Server {
     this.wss.on('connection', async (ws) => {
       console.log(`A user connected. Total clients: ${this.wss.clients.size}`);
 
+      if (this.disconnectTimer) {
+        clearTimeout(this.disconnectTimer);
+        this.disconnectTimer = undefined;
+        console.log('Cancelled scheduled disconnect because a client reconnected.');
+      }
+
       // Ensure Twitch EventSub WS connection
       const twitchListener = await runWithRetry(twitchConnect);
-
 
       const emoteListener = await runWithRetry(emoteConnect);
 
@@ -54,13 +62,24 @@ export class Server {
       ws.on('close', async () => {
         console.log(`A user disconnected. Total clients: ${this.wss.clients.size}`);
         if (this.wss.clients.size === 0) {
-          console.log('No clients connected. Disconnecting from Twitch EventSub WS and 7TV WebSocket.');
-          if (twitchListener && twitchListener.isConnected()) {
-            twitchListener.disconnect();
+          console.log(`No clients connected. Scheduling disconnect in ${this.DISCONNECT_DELAY / 1000}s.`);
+          if (this.disconnectTimer) {
+            clearTimeout(this.disconnectTimer);
           }
-          if (emoteListener && emoteListener.isConnected()) {
-            emoteListener.disconnect();
-          }
+          this.disconnectTimer = setTimeout(async () => {
+            if (this.wss.clients.size === 0) {
+              console.log('No clients reconnected. Disconnecting from Twitch EventSub and Emote WebSocket.');
+              if (twitchListener && twitchListener.isConnected()) {
+                disconnectClient();
+              }
+              if (emoteListener && emoteListener.isConnected()) {
+                emoteListener.disconnect();
+              }
+            } else {
+              console.log('Clients reconnected before disconnect. Aborting disconnect.');
+            }
+            this.disconnectTimer = undefined;
+          }, this.DISCONNECT_DELAY);
         }
       });
     });
@@ -101,13 +120,12 @@ function formatUptime(seconds: number): string {
 }
 
 async function twitchConnect() {
-    const listener = TwitchEventSubClient.getInstance();
-    if (!listener) throw new Error('Listener singleton not yet created.');
-    if (!listener.isConnected()) {
-      await listener.connect();
-      return listener;
-    }
-    return listener;
+  const listener = TwitchEventSubClient.getInstance();
+  if (!listener) throw new Error('Listener singleton not yet created.');
+  if (!listener.isConnected()) {
+    await reconnectClient();
+  }
+  return listener;
 
 }
 

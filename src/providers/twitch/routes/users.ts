@@ -1,4 +1,4 @@
-import type { TwitchProvider } from "../twitch.js";
+import type { TwitchProvider } from "../api.js";
 
 type TwitchUserResponse = {
   data: TwitchUser[];

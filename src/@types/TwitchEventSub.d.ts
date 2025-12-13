@@ -46,3 +46,21 @@ interface ReconnectPayload {
     reconnect_url: string;
   };
 }
+
+interface EventSubSubscription {
+  id: string;
+  status: string;
+  type: string;
+  version: string;
+  cost: number;
+  condition: object;
+  transport: {
+    method: 'websocket';
+    session_id: string;
+  };
+  created_at: string;
+}
+
+interface EventSubSubscriptionResponse {
+  data: EventSubSubscription[];
+}

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import WebSocket from 'ws';
-import type { TwitchProvider } from '../twitch.js';
+import type { TwitchProvider } from '../api.js';
 
 export class TwitchEventSubClient extends EventEmitter {
   private static instance: TwitchEventSubClient | null = null; // Singleton instance
@@ -129,7 +129,7 @@ export class TwitchEventSubClient extends EventEmitter {
    * @param version The subscription version (e.g., '2')
    * @param condition The condition object (e.g., { broadcaster_user_id: '123' })
    */
-  public async subscribe(type: string, version: string, condition: object) {
+  public async createSubscription(type: string, version: string, condition: object) {
     if (!this.sessionId) {
       throw new Error('Cannot subscribe. WebSocket is not connected or session ID is not set.');
     }
@@ -152,6 +152,36 @@ export class TwitchEventSubClient extends EventEmitter {
       return response;
     } catch (error) {
       console.error(`Failed to create subscription for ${type}:`, error);
+      throw error;
+    }
+  }
+
+  public async getSubscriptions(id?: string): Promise<EventSubSubscription[]> {
+    try {
+      const response: EventSubSubscriptionResponse = await this.apiClient.makeApiRequest(
+        `eventsub/subscriptions${id ? `?id=${id}` : ''}`,
+        'user',
+        'GET'
+      );
+
+      const subscriptions = response.data;
+
+      return subscriptions;
+    } catch (error) {
+      console.error('Failed to get EventSub subscriptions:', error);
+      throw error;
+    }
+  }
+
+  public async deleteSubscription(id: string): Promise<void> {
+    try {
+      await this.apiClient.makeApiRequest(
+        `eventsub/subscriptions?id=${id}`,
+        'user',
+        'DELETE'
+      );
+    } catch (error) {
+      console.error(`Failed to delete EventSub subscription with ID ${id}:`, error);
       throw error;
     }
   }
