@@ -6,10 +6,6 @@ import { BadgeCache } from "./cache/badges.js";
 
 // --- Utility Functions ---
 
-function escapeRegExp(str: string): string {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
 function escapeHTML(str: string): string {
     if (!str) return '';
     return str.replace(/[&<>"']/g, (m) => {
