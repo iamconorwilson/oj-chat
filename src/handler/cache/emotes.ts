@@ -139,9 +139,12 @@ export class EmoteCache extends EventEmitter {
         // clean up any previous socket so we don't reuse a CONNECTING instance
         if (this.ws) {
             try {
-                this.ws.removeAllListeners();
-                // terminate immediately if available
-                this.ws.terminate?.();
+               const swallowError = (err: unknown) => {
+                   console.warn('Suppressed WebSocket error during cleanup:', err);
+               };
+               this.ws.once('error', swallowError);
+               // terminate immediately if available
+               this.ws.terminate?.();
             } catch (e) {
                 console.error('Error cleaning up previous WebSocket:', e);
             }
