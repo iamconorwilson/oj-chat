@@ -17,10 +17,14 @@ export class EmoteCache extends EventEmitter {
     private userId: string = '';
     private ws?: ws;
     private wsConnected: boolean = false;
+    private wsErrorHandler?: (err: unknown) => void;
     private sendQueue: WeakMap<ws, string[]> = new WeakMap();
 
     private constructor() {
         super();
+        this.on('error', (err) => {
+            console.warn('EmoteCache caught error:', err);
+        });
     }
 
     public static async getInstance(): Promise<EmoteCache> {
@@ -139,12 +143,21 @@ export class EmoteCache extends EventEmitter {
         // clean up any previous socket so we don't reuse a CONNECTING instance
         if (this.ws) {
             try {
-               const swallowError = (err: unknown) => {
-                   console.warn('Suppressed WebSocket error during cleanup:', err);
-               };
-               this.ws.once('error', swallowError);
-               // terminate immediately if available
-               this.ws.terminate?.();
+                if (this.wsErrorHandler) {
+                    try { this.ws.removeListener('error', this.wsErrorHandler); } catch (e) {
+                        console.warn('Failed to remove old WebSocket error listener:', e);
+                    }
+                    this.wsErrorHandler = undefined;
+                }
+                const swallowError = (err: unknown) => {
+                    console.warn('Suppressed WebSocket error during cleanup:', err);
+                };
+                this.ws.once('error', swallowError);
+                try {
+                    this.ws.terminate?.();
+                } catch (terminateErr) {
+                    console.warn('WebSocket.terminate threw during cleanup:', terminateErr);
+                }
             } catch (e) {
                 console.error('Error cleaning up previous WebSocket:', e);
             }
@@ -152,6 +165,8 @@ export class EmoteCache extends EventEmitter {
         }
 
         this.ws = new ws(this.base7tvWsUrl);
+        this.wsErrorHandler = (error: unknown) => { this.emit('error', error); };
+        this.ws.on('error', this.wsErrorHandler);
         const payload = {
             op: 35,
             d: {
