@@ -20,6 +20,8 @@ export class EmoteCache extends EventEmitter {
     private wsErrorHandler?: (err: unknown) => void;
     private sendQueue: WeakMap<ws, string[]> = new WeakMap();
 
+    private isConnecting: boolean = false;
+
     private constructor() {
         super();
         this.on('error', (err) => {
@@ -138,7 +140,7 @@ export class EmoteCache extends EventEmitter {
             this.emit('error', new Error('7TV WebSocket endpoint is not defined in environment variables.'));
             return;
         }
-        if (this.wsConnected) return;
+        if (this.wsConnected || this.isConnecting) return;
 
         // clean up any previous socket so we don't reuse a CONNECTING instance
         if (this.ws) {
@@ -164,8 +166,12 @@ export class EmoteCache extends EventEmitter {
             this.ws = undefined;
         }
 
+        this.isConnecting = true;
         this.ws = new ws(this.base7tvWsUrl);
-        this.wsErrorHandler = (error: unknown) => { this.emit('error', error); };
+        this.wsErrorHandler = (error: unknown) => {
+            this.isConnecting = false;
+            this.emit('error', error);
+        };
         this.ws.on('error', this.wsErrorHandler);
         const payload = {
             op: 35,
@@ -176,6 +182,7 @@ export class EmoteCache extends EventEmitter {
         };
         this.ws.on('open', () => {
             this.wsConnected = true;
+            this.isConnecting = false;
             // use sendOrQueue to avoid sending while still CONNECTING
             this.sendOrQueue(this.ws, JSON.stringify(payload));
             this.emit('connected');
@@ -206,9 +213,11 @@ export class EmoteCache extends EventEmitter {
         });
         this.ws.on('close', () => {
             this.wsConnected = false;
+            this.isConnecting = false;
             this.emit('closed');
         });
         this.ws.on('error', (error) => {
+            this.isConnecting = false;
             this.emit('error', error);
         });
     }
