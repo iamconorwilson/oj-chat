@@ -10,6 +10,8 @@ export class TwitchEventSubClient extends EventEmitter {
   private ws: WebSocket | null = null;
   private sessionId: string | null = null;
 
+  private isConnecting: boolean = false;
+
   private constructor(apiClient: TwitchProvider) { // Make constructor private
     super();
     this.apiClient = apiClient;
@@ -32,6 +34,7 @@ export class TwitchEventSubClient extends EventEmitter {
    * Connects to the Twitch EventSub WebSocket server.
    */
   public async connect() {
+    if (this.isConnecting || this.isConnected()) return;
 
     this.WEBSOCKET_URL = process.env.TWITCH_WS_ENDPOINT;
 
@@ -39,10 +42,13 @@ export class TwitchEventSubClient extends EventEmitter {
       throw new Error('Twitch EventSub WebSocket URL is not defined in environment variables.');
     }
 
+    this.isConnecting = true;
+
     const wsUrl = `${this.WEBSOCKET_URL}`;
     this.ws = new WebSocket(wsUrl);
 
     this.ws.on('open', () => {
+      this.isConnecting = false;
       console.log('Connected to Twitch EventSub Websocket');
     });
 
@@ -52,6 +58,7 @@ export class TwitchEventSubClient extends EventEmitter {
     });
 
     this.ws.on('close', () => {
+      this.isConnecting = false;
       this.emit('disconnect');
       this.sessionId = null;
       this.ws = null;
@@ -59,6 +66,7 @@ export class TwitchEventSubClient extends EventEmitter {
     });
 
     this.ws.on('error', (error) => {
+      this.isConnecting = false;
       console.error('Twitch EventSub WS error:', error);
       this.emit('error', error);
     });
