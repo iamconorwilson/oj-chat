@@ -19,6 +19,7 @@ const eventSubs = [
   { type: 'channel.chat.clear', version: '1', condition: broadcasterAndUser },
   { type: 'channel.chat.clear_user_messages', version: '1', condition: broadcasterAndUser },
   { type: 'channel.chat.message_delete', version: '1', condition: broadcasterAndUser },
+  { type: 'channel.chat.notification', version: '1', condition: broadcasterAndUser },
   { type: 'channel.shared_chat.begin', version: '1', condition: broadcasterOnly }
 ];
 
