@@ -104,4 +104,24 @@ interface TwitchChannelChatMessageDelete extends TwitchChannelChatClearUserMessa
   message_id: string;
 }
 
-type Messages = TwitchChannelChatClear | TwitchChannelChatClearUserMessages | TwitchChannelChatMessage | TwitchChannelChatMessageDelete | TwitchChannelSharedChat;
+interface TwitchChannelChatNotification {
+  id: string;
+  broadcaster_user_id: string;
+  broadcaster_user_login: string;
+  broadcaster_user_name: string;
+  chatter_user_id: string;
+  chatter_user_login: string;
+  chatter_user_name: string;
+  chatter_is_anonymous: boolean;
+  color: string | null;
+  badges: TwitchChannelChatBadge[];
+  system_message: string | null;
+  message_id: string | null;
+  message: {
+    text: string;
+    fragments: TwitchChannelChatMessageFragment[];
+  };
+  notice_type: string;
+}
+
+type Messages = TwitchChannelChatClear | TwitchChannelChatClearUserMessages | TwitchChannelChatMessage | TwitchChannelChatMessageDelete | TwitchChannelSharedChat | TwitchChannelChatNotification;

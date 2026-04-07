@@ -90,10 +90,10 @@ export async function parseMessageParts(messageParts: TwitchChannelChatMessageFr
                 return `<span class="cheer cheer-${part.cheermote.prefix}"><img src="https://d3aqoihi2n8ty8.cloudfront.net/actions/${part.cheermote.prefix}/dark/animated/${part.cheermote.tier}/4.gif" alt="Cheer"/> ${part.cheermote.bits}</span>`;
             }
             case "mention": {
-                return escapeHTML(part.mention.user_name);
+                return `@${escapeHTML(part.mention.user_name)}`;
             }
             case "text": {
-                 return part.text.split(/\s+/).map(token =>
+                return part.text.split(/\s+/).map(token =>
                     emoteMap.has(token)
                         ? `<img class="emote" src="${emoteMap.get(token)}" alt="${escapeHTML(token)}" />`
                         : escapeHTML(token)

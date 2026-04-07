@@ -2,6 +2,8 @@ import { MessageQueue } from '../queue.js';
 import { getUserColor, getPronouns, getSharedChat, getRedemption, parseMessageParts, parseBadges } from './utils.js';
 import { TwitchProvider } from '../providers/twitch/api.js';
 import { Server } from '../server.js';
+import * as fs from 'fs';
+import * as path from 'path';
 // --- Handler Functions ---
 
 const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
@@ -114,6 +116,22 @@ const chatSharedChatHandler = async (eventData: TwitchChannelSharedChat) => {
   console.log(JSON.stringify(wsMessage, null, 2));
 };
 
+const chatNotificationHandler = (eventData: TwitchChannelChatNotification) => {
+  const wsMessage = {
+    type: 'chatNotification',
+    data: eventData
+  };
+  console.log(JSON.stringify(wsMessage, null, 2));
+
+  const debugFolder = path.join(process.env.SECRETS_DIR || process.cwd(), 'debug');
+  if (!fs.existsSync(debugFolder)) {
+    fs.mkdirSync(debugFolder);
+  }
+  const debugFile = path.join(debugFolder, `${eventData.id}.json`);
+  fs.writeFileSync(debugFile, JSON.stringify(wsMessage, null, 2));
+
+};
+
 // --- Main Queue Handler ---
 
 export const messageHandler = async () => {
@@ -139,6 +157,9 @@ export const messageHandler = async () => {
           break;
         case 'channel.chat.shared_chat.begin':
           chatSharedChatHandler(message.data as TwitchChannelSharedChat);
+          break;
+        case 'channel.chat.notification':
+          chatNotificationHandler(message.data as TwitchChannelChatNotification);
           break;
         default:
           console.warn('Unhandled message type:', message.type);

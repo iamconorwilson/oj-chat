@@ -35,57 +35,33 @@ const init = () => {
 };
 
 const wsConnect = () => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
-    const ws = new WebSocket(wsUrl);
+    const socket = io();
 
-    ws.onopen = () => {
+    socket.on('connect', () => {
         console.log("Connected");
-    };
+    });
 
     window.onerror = (message, source, lineno, colno, error) => {
         console.error(error);
-        ws.send(JSON.stringify({ type: 'clientError', data: { message, source, lineno, colno, error: error?.toString() } }));
+        if (socket && socket.connected) {
+            socket.emit('clientError', { message, source, lineno, colno, error: error?.toString() });
+        }
         return false;
     };
 
-    ws.onmessage = (event) => {
-        let msg;
-        try {
-            msg = JSON.parse(event.data);
-        } catch (e) {
-            console.warn("Failed to parse message:", event.data);
-            return;
-        }
-        switch (msg.type) {
-            case "version":
-                console.log(`Server version: ${msg.data}`);
-                break;
-            case "chatMessage":
-                eventQueue.push(msg.data);
-                processEventQueue();
-                break;
-            case "chatClearUserMessages":
-                onRemoveUserMsg(msg.data);
-                break;
-            case "chatMessageDelete":
-                onRemoveSingleMsg(msg.data);
-                break;
-            case "chatClear":
-                onRemoveAllMsg();
-                break;
-            case "chatSharedChat":
-                onSharedChatMsg(msg.data);
-                break;
-            default:
-                console.warn(`Unknown message type: ${msg.type}`);
-        }
-    };
+    socket.on('version', (data) => console.log(`Server version: ${data}`));
+    socket.on('chatMessage', (data) => {
+        eventQueue.push(data);
+        processEventQueue();
+    });
+    socket.on('chatClearUserMessages', (data) => onRemoveUserMsg(data));
+    socket.on('chatMessageDelete', (data) => onRemoveSingleMsg(data));
+    socket.on('chatClear', () => onRemoveAllMsg());
+    socket.on('chatSharedChat', (data) => onSharedChatMsg(data));
 
-    ws.onclose = () => {
+    socket.on('disconnect', () => {
         console.log("Disconnected");
-        setTimeout(wsConnect, 5000);
-    };
+    });
 };
 
 // Debounced queue processor
@@ -94,10 +70,13 @@ const processEventQueue = () => {
     if (queueProcessing || eventQueue.length === 0) return;
     queueProcessing = true;
     scheduleFrame(async () => {
-        // Process multiple items when hidden to keep the queue from growing too large.
-        const BATCH_WHEN_VISIBLE = 1;
-        const BATCH_WHEN_HIDDEN = 20;
-        const batchSize = (typeof document !== 'undefined' && document.visibilityState === 'visible') ? BATCH_WHEN_VISIBLE : BATCH_WHEN_HIDDEN;
+        // Process multiple items when hidden, or when the queue has backed up, to catch up quickly
+        let batchSize = 1;
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+            batchSize = 20;
+        } else if (eventQueue.length > 5) {
+            batchSize = eventQueue.length;
+        }
 
         for (let i = 0; i < batchSize && eventQueue.length > 0; i++) {
             const nextEvent = eventQueue.shift();
