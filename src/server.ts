@@ -1,6 +1,6 @@
 import Express from 'express';
 import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
+import { Server as SocketIOServer } from 'socket.io';
 import { TwitchEventSubClient } from './providers/twitch/routes/eventsub-ws.js';
 import { reconnectClient, disconnectClient } from './providers/twitch/client.js';
 import { EmoteCache } from './handler/cache/emotes.js';
@@ -12,7 +12,7 @@ export class Server {
   private static instance: Server;
   private app!: Express.Express;
   private server!: ReturnType<typeof createServer>;
-  private wss!: WebSocketServer;
+  private io!: SocketIOServer;
   private disconnectTimer?: NodeJS.Timeout;
   private readonly DISCONNECT_DELAY = 3 * 60 * 1000; // 3 minutes
 
@@ -35,9 +35,9 @@ export class Server {
 
     const PORT = process.env.PORT || 3000;
 
-    this.wss = new WebSocketServer({ server: this.server, clientTracking: true, path: '/ws' });
-    this.wss.on('connection', async (ws) => {
-      console.log(`A user connected. Total clients: ${this.wss.clients.size}`);
+    this.io = new SocketIOServer(this.server);
+    this.io.on('connection', async (socket) => {
+      console.log(`A user connected. Total clients: ${this.io.engine.clientsCount}`);
 
       if (this.disconnectTimer) {
         clearTimeout(this.disconnectTimer);
@@ -50,24 +50,21 @@ export class Server {
 
       const emoteListener = await runWithRetry(emoteConnect);
 
-      ws.send(JSON.stringify({ type: 'version', data: version }));
+      socket.emit('version', version);
 
-      ws.on('message', (message) => {
-        const messageObj = JSON.parse(message.toString());
-        if (messageObj.type === "clientError") {
-          console.error('Client Error:', messageObj.data);
-        }
+      socket.on('clientError', (data) => {
+        console.error('Client Error:', data);
       });
 
-      ws.on('close', async () => {
-        console.log(`A user disconnected. Total clients: ${this.wss.clients.size}`);
-        if (this.wss.clients.size === 0) {
+      socket.on('disconnect', async () => {
+        console.log(`A user disconnected. Total clients: ${this.io.engine.clientsCount}`);
+        if (this.io.engine.clientsCount === 0) {
           console.log(`No clients connected. Scheduling disconnect in ${this.DISCONNECT_DELAY / 1000}s.`);
           if (this.disconnectTimer) {
             clearTimeout(this.disconnectTimer);
           }
           this.disconnectTimer = setTimeout(async () => {
-            if (this.wss.clients.size === 0) {
+            if (this.io.engine.clientsCount === 0) {
               console.log('No clients reconnected. Disconnecting from Twitch EventSub and Emote WebSocket.');
               if (twitchListener && twitchListener.isConnected()) {
                 disconnectClient();
@@ -92,7 +89,7 @@ export class Server {
         status: 'OK',
         version: version,
         uptime: formatUptime(Math.floor(process.uptime())),
-        connectedClients: this.wss.clients.size,
+        connectedClients: this.io.engine.clientsCount,
         connectedToTwitch: twitchConnected
       });
     });
@@ -102,13 +99,8 @@ export class Server {
     });
   }
 
-  public emit(data: Record<string, unknown>) {
-    const message = JSON.stringify(data);
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === client.OPEN) {
-        client.send(message);
-      }
-    });
+  public emit(payload: { type: string; data?: any }) {
+    this.io.emit(payload.type, payload.data);
   }
 }
 
