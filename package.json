@@ -10,8 +10,12 @@
   "scripts": {
     "start": "node dist/app.js",
     "auth": "node dist/utils/getOAuth.js",
-    "build": "rimraf dist && tsc",
-    "dev": "tsc-watch --onSuccess \"cross-env NODE_ENV=development node ./dist/app.js\"",
+    "build:server": "rimraf dist && tsc",
+    "build:client": "node esbuild.config.js",
+    "build": "npm run build:server && npm run build:client",
+    "dev:server": "tsc-watch --onSuccess \"cross-env NODE_ENV=development node ./dist/app.js\"",
+    "dev:client": "node esbuild.config.js --watch",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },
@@ -21,6 +25,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.3",
     "ws": "^8.18.3"
   },
   "devDependencies": {
@@ -28,7 +33,10 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.2",
     "@types/ws": "^8.18.1",
+    "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
+    "esbuild": "^0.28.0",
+    "esbuild-copy-static-files": "^0.1.0",
     "eslint": "^9.39.2",
     "globals": "^16.5.0",
     "rimraf": "^6.1.2",
