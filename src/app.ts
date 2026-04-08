@@ -1,5 +1,6 @@
 if (process.env.NODE_ENV === 'development') {
   process.loadEnvFile('.env.dev');
+  console.log(process.env.TWITCH_CLIENT_ID);
 }
 
 import { Server } from './server.js';
