@@ -127,7 +127,7 @@ const chatNotificationHandler = (eventData: TwitchChannelChatNotification) => {
   if (!fs.existsSync(debugFolder)) {
     fs.mkdirSync(debugFolder);
   }
-  const debugFile = path.join(debugFolder, `${eventData.id}.json`);
+  const debugFile = path.join(debugFolder, `${eventData.message_id}-${eventData.notice_type}.json`);
   fs.writeFileSync(debugFile, JSON.stringify(wsMessage, null, 2));
 
 };
