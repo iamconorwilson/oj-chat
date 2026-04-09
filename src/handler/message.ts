@@ -61,13 +61,13 @@ const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
   };
 
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 };
 
 const chatClearHandler = () => {
   const wsMessage = { type: 'chatClear' };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 };
 
 const chatClearUserMessagesHandler = (eventData: TwitchChannelChatClearUserMessages) => {
@@ -76,7 +76,7 @@ const chatClearUserMessagesHandler = (eventData: TwitchChannelChatClearUserMessa
     data: { id: eventData.target_user_id }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 };
 
 const chatMessageDeleteHandler = (eventData: TwitchChannelChatMessageDelete) => {
@@ -85,7 +85,7 @@ const chatMessageDeleteHandler = (eventData: TwitchChannelChatMessageDelete) => 
     data: { id: eventData.message_id }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 };
 
 const chatSharedChatHandler = async (eventData: TwitchChannelSharedChat) => {
@@ -113,7 +113,7 @@ const chatSharedChatHandler = async (eventData: TwitchChannelSharedChat) => {
     data: { participants: participantInfo }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 };
 
 const chatNotificationHandler = (eventData: TwitchChannelChatNotification) => {
@@ -121,7 +121,7 @@ const chatNotificationHandler = (eventData: TwitchChannelChatNotification) => {
     type: 'chatNotification',
     data: eventData
   };
-  console.log(JSON.stringify(wsMessage, null, 2));
+  console.log(JSON.stringify(wsMessage));
 
   const debugFolder = path.join(process.env.SECRETS_DIR || process.cwd(), 'debug');
   if (!fs.existsSync(debugFolder)) {
