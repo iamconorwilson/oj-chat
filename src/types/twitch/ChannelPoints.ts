@@ -1,4 +1,4 @@
-interface TwitchChannelPointsReward {
+export interface TwitchChannelPointsReward {
   broadcaster_name: string;
   broadcaster_id: string;
   id: string;

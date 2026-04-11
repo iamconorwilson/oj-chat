@@ -176,7 +176,6 @@ span.redemption {
     font-weight: normal;
     font-size: 0.875rem;
     color: #adadb8;
-    width: 100%;
     padding-left: 0.1875rem;
 }
 
@@ -246,6 +245,29 @@ span.redemption {
 .shared-chat-message .profile:last-child {
     margin-right: 0;
 }
+/* =========================
+   Notice Messages
+   ========================= */
+
+#container > .notice-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notice-user {
+    font-weight: bold;
+}
+
+.notice-message svg {
+    fill: #ffb31a;
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-bottom: 0.125rem;
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
 
 /* =========================
    Utility Classes

@@ -5,6 +5,8 @@ import { UsersApi } from './routes/users.js';
 import { ChatApi } from './routes/chat.js';
 import { ChannelPointsApi } from './routes/channel-points.js';
 
+import type { TwitchUser } from '../../types/twitch/index.js';
+
 interface TwitchApiConfig {
   clientId: string;
   clientSecret: string;
@@ -42,7 +44,7 @@ export class TwitchProvider {
     this.config = config;
     this.API_BASE_URL = process.env.TWITCH_HELIX_ENDPOINT;
     this.API_AUTH_URL = process.env.TWITCH_AUTH_ENDPOINT;
-    
+
     this.users = new UsersApi(this);
     this.chat = new ChatApi(this);
     this.channelPoints = new ChannelPointsApi(this);

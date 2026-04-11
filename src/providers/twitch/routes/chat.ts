@@ -1,4 +1,5 @@
 import type { TwitchProvider } from "../api.js";
+import type { TwitchBadge } from "../../../types/twitch/index.js";
 
 type TwitchBadgeResponse = {
   data: TwitchBadge[];

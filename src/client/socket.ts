@@ -1,8 +1,10 @@
 import { io } from 'socket.io-client';
-import { ChatMessageData, ChatClearUserMessagesData, ChatMessageDeleteData, SharedChatData } from './types';
-import { onMsgEvent, onRemoveUserMsg, onRemoveSingleMsg, onRemoveAllMsg, onSharedChatMsg } from './dom';
+import type { EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatMessage, EmittedChatNotification, EmittedChatShared } from '../types/emittedMessages.js';
+import { onRemoveUserMsg, onRemoveSingleMsg, onRemoveAllMsg, onSharedChatMsg, onMessageEvent, onNotificationEvent } from './dom';
 
-let eventQueue: ChatMessageData[] = [];
+type QueuedMessageData = EmittedChatMessage | EmittedChatNotification;
+
+let eventQueue: QueuedMessageData[] = [];
 let queueProcessing = false;
 
 const processEventQueue = () => {
@@ -21,7 +23,13 @@ const processEventQueue = () => {
             const nextEvent = eventQueue.shift();
             try {
                 if (nextEvent) {
-                    await onMsgEvent(nextEvent);
+                    if (nextEvent.type === 'chatMessage') {
+                        await onMessageEvent(nextEvent.data);
+                    } else if (nextEvent.type === 'chatNotification') {
+                        await onNotificationEvent(nextEvent.data);
+                    } else {
+                        console.error('Unknown event type:', nextEvent);
+                    }
                 }
             } catch (err) {
                 console.error('Error processing queued event:', err);
@@ -57,16 +65,21 @@ export const wsConnect = () => {
     };
 
     socket.on('version', (data: string) => console.log(`Server version: ${data}`));
-    
-    socket.on('chatMessage', (data: ChatMessageData) => {
-        eventQueue.push(data);
+
+    socket.on('chatMessage', (data: EmittedChatMessage['data']) => {
+        eventQueue.push({ type: 'chatMessage', data });
         processEventQueue();
     });
-    
-    socket.on('chatClearUserMessages', (data: ChatClearUserMessagesData) => onRemoveUserMsg(data));
-    socket.on('chatMessageDelete', (data: ChatMessageDeleteData) => onRemoveSingleMsg(data));
+
+    socket.on('chatNotification', (data: EmittedChatNotification['data']) => {
+        eventQueue.push({ type: 'chatNotification', data });
+        processEventQueue();
+    });
+
+    socket.on('chatClearUserMessages', (data: EmittedChatClearUserMessages['data']) => onRemoveUserMsg(data));
+    socket.on('chatMessageDelete', (data: EmittedChatDelete['data']) => onRemoveSingleMsg(data));
     socket.on('chatClear', () => onRemoveAllMsg());
-    socket.on('chatSharedChat', (data: SharedChatData) => onSharedChatMsg(data));
+    socket.on('chatSharedChat', (data: EmittedChatShared['data']) => onSharedChatMsg(data));
 
     socket.on('disconnect', () => {
         console.log("Disconnected");

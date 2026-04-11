@@ -1,8 +1,11 @@
 import { createHash } from "crypto";
-import { PronounCache } from "./cache/pronouns.js";
+import { PronounCache } from "./caches/pronouns.js";
 import { TwitchProvider } from "../providers/twitch/api.js";
-import { EmoteCache } from "./cache/emotes.js";
-import { BadgeCache } from "./cache/badges.js";
+import { EmoteCache } from "./caches/emotes.js";
+import { BadgeCache } from "./caches/badges.js";
+
+import type { TwitchChannelChatMessageFragment } from '../types/twitch/index.js';
+import { ChatBadgeData, ChatChannelPointRedemptionData, SharedChatMessageData } from "../types/emittedMessages.js";
 
 // --- Utility Functions ---
 
@@ -43,7 +46,7 @@ export async function getPronouns(displayName: string): Promise<string | undefin
 export async function getRedemption(
     broadcasterId: string | null,
     rewardId: string | null
-): Promise<{ title: string; cost: number } | null> {
+): Promise<ChatChannelPointRedemptionData | null> {
     if (!broadcasterId || !rewardId) return null;
     const client = await TwitchProvider.getInstance();
     const reward = await client.channelPoints.getRewardById(broadcasterId, rewardId);
@@ -56,15 +59,11 @@ export async function getRedemption(
 
 export async function getSharedChat(
     broadcasterId: string | null
-): Promise<false | {
-    fromChannelProfileImageUrl: string;
-    fromChannelDisplayName: string;
-    isSourceBroadcaster: boolean;
-}> {
-    if (!broadcasterId) return false;
+): Promise<null | SharedChatMessageData> {
+    if (!broadcasterId) return null;
     const client = await TwitchProvider.getInstance();
     const broadcaster = await client.users.getUserById(broadcasterId);
-    if (!broadcaster.data.length) return false;
+    if (!broadcaster.data.length) return null;
     return {
         fromChannelProfileImageUrl: broadcaster.data[0].profile_image_url,
         fromChannelDisplayName: broadcaster.data[0].display_name,
@@ -108,7 +107,7 @@ export async function parseMessageParts(messageParts: TwitchChannelChatMessageFr
 
 export function parseBadges(
     badges: { set_id: string; id: string; info: string; }[] | null
-): { title: string; url: string; }[] {
+): ChatBadgeData[] {
     if (!badges || badges.length === 0) return [];
     const badgeCache = BadgeCache.getInstance();
     return badges

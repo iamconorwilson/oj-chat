@@ -2,8 +2,10 @@ import { MessageQueue } from '../queue.js';
 import { getUserColor, getPronouns, getSharedChat, getRedemption, parseMessageParts, parseBadges } from './utils.js';
 import { TwitchProvider } from '../providers/twitch/api.js';
 import { Server } from '../server.js';
-import * as fs from 'fs';
-import * as path from 'path';
+
+import type { TwitchChannelChatMessage, TwitchChannelChatClear, TwitchChannelChatClearUserMessages, TwitchChannelChatMessageDelete, TwitchChannelSharedChat, TwitchChannelChatNotification, TwitchChannelPointsReward } from '../types/twitch/index.js';
+import { EmittedChatClear, EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatMessage, EmittedChatShared, EmittedChatNotification } from '../types/emittedMessages.js';
+
 // --- Handler Functions ---
 
 const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
@@ -42,7 +44,7 @@ const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
     })()
   ]);
 
-  const wsMessage = {
+  const wsMessage: EmittedChatMessage = {
     type: 'chatMessage',
     data: {
       id: message_id,
@@ -61,31 +63,27 @@ const chatMessageHandler = async (eventData: TwitchChannelChatMessage) => {
   };
 
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage));
 };
 
 const chatClearHandler = () => {
-  const wsMessage = { type: 'chatClear' };
+  const wsMessage: EmittedChatClear = { type: 'chatClear' };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage));
 };
 
 const chatClearUserMessagesHandler = (eventData: TwitchChannelChatClearUserMessages) => {
-  const wsMessage = {
+  const wsMessage: EmittedChatClearUserMessages = {
     type: 'chatClearUserMessages',
     data: { id: eventData.target_user_id }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage));
 };
 
 const chatMessageDeleteHandler = (eventData: TwitchChannelChatMessageDelete) => {
-  const wsMessage = {
+  const wsMessage: EmittedChatDelete = {
     type: 'chatMessageDelete',
     data: { id: eventData.message_id }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage));
 };
 
 const chatSharedChatHandler = async (eventData: TwitchChannelSharedChat) => {
@@ -108,27 +106,40 @@ const chatSharedChatHandler = async (eventData: TwitchChannelSharedChat) => {
     return 0;
   });
 
-  const wsMessage = {
+  const wsMessage: EmittedChatShared = {
     type: 'chatSharedChat',
     data: { participants: participantInfo }
   };
   Server.getInstance().emit(wsMessage);
-  console.log(JSON.stringify(wsMessage));
 };
 
-const chatNotificationHandler = (eventData: TwitchChannelChatNotification) => {
-  const wsMessage = {
-    type: 'chatNotification',
-    data: eventData
-  };
-  console.log(JSON.stringify(wsMessage));
+const chatNotificationHandler = async (eventData: TwitchChannelChatNotification) => {
 
-  const debugFolder = path.join(process.env.SECRETS_DIR || process.cwd(), 'debug');
-  if (!fs.existsSync(debugFolder)) {
-    fs.mkdirSync(debugFolder);
+  if (eventData.notice_type === 'watch_streak') {
+    // WATCH STREAK
+
+    const userColor = eventData.color || getUserColor(eventData.chatter_user_name);
+    const wsMessage: EmittedChatNotification = {
+      type: 'chatNotification',
+      data: {
+        id: eventData.message_id,
+        notice_type: 'watch_streak',
+        user: {
+          id: eventData.chatter_user_id,
+          displayName: eventData.chatter_user_name,
+          color: userColor
+        },
+        streak: eventData.watch_streak.streak_count
+      }
+    };
+    Server.getInstance().emit(wsMessage);
+    return;
+  } else {
+    // UNKNOWN NOTICE TYPE
+    console.log("Unknown notice type:", eventData.notice_type);
+    return;
   }
-  const debugFile = path.join(debugFolder, `${eventData.message_id}-${eventData.notice_type}.json`);
-  fs.writeFileSync(debugFile, JSON.stringify(wsMessage, null, 2));
+  //TODO: Add Raid, Sub, Gifted Sub, etc.
 
 };
 

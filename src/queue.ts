@@ -1,4 +1,5 @@
 import EventEmitter from "events";
+import type { Messages } from "./types/twitch/index.js";
 
 interface QueueMessage {
   type: string;

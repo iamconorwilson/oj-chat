@@ -1,5 +1,4 @@
-
-interface TwitchEventSubMessage {
+export interface TwitchEventSubMessage {
   metadata: {
     message_id: string;
     message_type: 'session_welcome' | 'session_keepalive' | 'notification' | 'session_reconnect' | 'revocation';
@@ -10,7 +9,7 @@ interface TwitchEventSubMessage {
   payload: WelcomePayload | NotificationPayload | ReconnectPayload | Record<string, never>;
 }
 
-interface WelcomePayload {
+export interface WelcomePayload {
   session: {
     id: string;
     status: string;
@@ -20,7 +19,7 @@ interface WelcomePayload {
   };
 }
 
-interface NotificationPayload {
+export interface NotificationPayload {
   subscription: {
     id: string;
     status: string;
@@ -37,7 +36,7 @@ interface NotificationPayload {
   event: Record<string, unknown>;
 }
 
-interface ReconnectPayload {
+export interface ReconnectPayload {
   session: {
     id: string;
     status: string;
@@ -47,7 +46,7 @@ interface ReconnectPayload {
   };
 }
 
-interface EventSubSubscription {
+export interface EventSubSubscription {
   id: string;
   status: string;
   type: string;
@@ -61,6 +60,6 @@ interface EventSubSubscription {
   created_at: string;
 }
 
-interface EventSubSubscriptionResponse {
+export interface EventSubSubscriptionResponse {
   data: EventSubSubscription[];
 }
