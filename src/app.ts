@@ -1,12 +1,11 @@
 if (process.env.NODE_ENV === 'development') {
   process.loadEnvFile('.env.dev');
-  console.log(process.env.TWITCH_CLIENT_ID);
 }
 
 import { Server } from './server.js';
 import { createClients } from './providers/index.js';
 import { messageHandler } from './handler/message.js';
-import { createCaches } from './handler/caches.js';
+import { createCaches } from './handler/caches/index.js';
 
 async function main() {
 

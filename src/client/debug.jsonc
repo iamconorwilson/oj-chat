@@ -1,0 +1,101 @@
+// DEBUG PAYLOADS FOR BROWSER TESTING
+[
+  // EmittedChatShared
+  {
+    "participants": [
+      {
+        "id": "87654321",
+        "displayName": "testUser1",
+        "profileImageUrl": "https://placehold.co/300.png"
+      },
+      {
+        "id": "12345678",
+        "displayName": "testUser2",
+        "profileImageUrl": "https://placehold.co/300.png"
+      }
+    ]
+  },
+  // EmittedChatNotification (watch_streak)
+  {
+    "id": "12345678-streak",
+    "notice_type": "watch_streak",
+    "user": {
+      "displayName": "testUser2",
+      "id": "12345678",
+      "color": "#FF8E44"
+    },
+    "streak": 5
+  },
+  // EmitttedChatDelete
+  {
+    "id": "12345678-basic"
+  },
+  // EmitttedChatClearUserMessages
+  {
+    "id": "12345678"
+  },
+  // EmitttedChatMessage
+  {
+    "id": "12345678-basic",
+    "message": "Hello World",
+    "user": {
+      "displayName": "testUser2",
+      "id": "12345678",
+      "color": "#FF8E44"
+    },
+    "badges": [
+      {
+        "title": "testUser2",
+        "url": "https://placehold.co/300.png"
+      }
+    ],
+    "sharedChat": null,
+    "redemption": null,
+    "isHighlight": false
+  },
+  // EmittedChatMessage with Redemption
+  {
+    "id": "12345678-redemption",
+    "message": "Hello World",
+    "user": {
+      "displayName": "testUser2",
+      "id": "12345678",
+      "color": "#FF8E44"
+    },
+    "badges": [
+      {
+        "title": "testUser2",
+        "url": "https://placehold.co/300.png"
+      }
+    ],
+    "sharedChat": null,
+    "redemption": {
+      "title": "testUser2",
+      "cost": 100
+    },
+    "isHighlight": false
+  },
+  // EmittedChatMessage with Shared Chat
+  {
+    "id": "12345678-shared",
+    "message": "Hello World",
+    "user": {
+      "displayName": "testUser2",
+      "id": "12345678",
+      "color": "#FF8E44"
+    },
+    "badges": [
+      {
+        "title": "testBadge",
+        "url": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/2"
+      }
+    ],
+    "sharedChat": {
+      "fromChannelDisplayName": "testUser1",
+      "fromChannelProfileImageUrl": "https://placehold.co/300.png",
+      "isSourceBroadcaster": false
+    },
+    "redemption": null,
+    "isHighlight": false
+  }
+]

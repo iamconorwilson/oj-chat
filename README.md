@@ -1,5 +1,5 @@
 # OJChat
-Simple application that displays onscreen Twitch chat with support for channel point redemptions, built using Express.
+Simple application that displays onscreen Twitch chat with support for channel point redemptions, shared chat and user notices.
 
 ## Prerequisites
 * Twitch App Client ID and Secret - [Create a new application](https://dev.twitch.tv/console/apps)
@@ -16,7 +16,7 @@ Simple application that displays onscreen Twitch chat with support for channel p
 
 ## Features
 * Real-time onscreen chat display for Twitch channels
-* Supports channel point redemptions
+* Supports channel point redemptions, shared chat and user notices
 * Query parameters for changing styles:
     * `?horizontal=true` - Horizontal chat layout
     * `?large=true` - Large chat font

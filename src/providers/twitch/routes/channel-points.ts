@@ -1,4 +1,5 @@
 import type { TwitchProvider } from "../api.js";
+import type { TwitchChannelPointsReward } from "../../../types/twitch/index.js";
 
 interface TwitchChannelPointsResponse {
   data: TwitchChannelPointsReward[];

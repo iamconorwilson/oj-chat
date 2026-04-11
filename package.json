@@ -1,6 +1,6 @@
 {
   "name": "oj-chat",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Simple application that displays onscreen Twitch chat",
   "main": "app.js",
   "type": "module",
@@ -11,7 +11,7 @@
     "start": "node dist/app.js",
     "auth": "node dist/utils/getOAuth.js",
     "build:server": "rimraf dist && tsc",
-    "build:client": "node esbuild.config.js",
+    "build:client": "rimraf public && node esbuild.config.js",
     "build": "npm run build:server && npm run build:client",
     "dev:server": "tsc-watch --onSuccess \"cross-env NODE_ENV=development node ./dist/app.js\"",
     "dev:client": "node esbuild.config.js --watch",

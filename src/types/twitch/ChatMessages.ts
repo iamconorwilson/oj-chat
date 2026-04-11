@@ -1,9 +1,9 @@
-interface TwitchChannelChatMessageTextFragment {
+export interface TwitchChannelChatMessageTextFragment {
   type: "text";
   text: string;
 }
 
-interface TwitchChannelChatMessageEmoteFragment {
+export interface TwitchChannelChatMessageEmoteFragment {
   type: "emote";
   text: string;
   emote: {
@@ -14,7 +14,7 @@ interface TwitchChannelChatMessageEmoteFragment {
   }
 }
 
-interface TwitchChannelChatMessageCheermoteFragment {
+export interface TwitchChannelChatMessageCheermoteFragment {
   type: "cheermote";
   text: string;
   cheermote: {
@@ -24,7 +24,7 @@ interface TwitchChannelChatMessageCheermoteFragment {
   }
 }
 
-interface TwitchChannelChatMessageMentionFragment {
+export interface TwitchChannelChatMessageMentionFragment {
   type: "mention";
   text: string;
   mention: {
@@ -34,16 +34,16 @@ interface TwitchChannelChatMessageMentionFragment {
   }
 }
 
-type TwitchChannelChatMessageFragment = TwitchChannelChatMessageTextFragment | TwitchChannelChatMessageEmoteFragment | TwitchChannelChatMessageCheermoteFragment | TwitchChannelChatMessageMentionFragment;
+export type TwitchChannelChatMessageFragment = TwitchChannelChatMessageTextFragment | TwitchChannelChatMessageEmoteFragment | TwitchChannelChatMessageCheermoteFragment | TwitchChannelChatMessageMentionFragment;
 
 
-interface TwitchChannelChatBadge {
+export interface TwitchChannelChatBadge {
   set_id: string;
   id: string;
   info: string;
 }
 
-interface TwitchChannelChatMessage {
+export interface TwitchChannelChatMessage {
   broadcaster_user_id: string;
   broadcaster_user_login: string;
   broadcaster_user_name: string;
@@ -70,13 +70,13 @@ interface TwitchChannelChatMessage {
   channel_points_animation_id: null;
 }
 
-interface TwitchChannelChatClear {
+export interface TwitchChannelChatClear {
   broadcaster_user_id: string;
   broadcaster_user_name: string;
   broadcaster_user_login: string;
 }
 
-interface TwitchChannelChatClearUserMessages {
+export interface TwitchChannelChatClearUserMessages {
   broadcaster_user_id: string;
   broadcaster_user_name: string;
   broadcaster_user_login: string;
@@ -85,7 +85,7 @@ interface TwitchChannelChatClearUserMessages {
   target_user_login: string;
 }
 
-interface TwitchChannelSharedChat {
+export interface TwitchChannelSharedChat {
   session_id: string;
   broadcaster_user_id: string;
   broadcaster_user_name: string;
@@ -100,28 +100,6 @@ interface TwitchChannelSharedChat {
   }[];
 }
 
-interface TwitchChannelChatMessageDelete extends TwitchChannelChatClearUserMessages {
+export interface TwitchChannelChatMessageDelete extends TwitchChannelChatClearUserMessages {
   message_id: string;
 }
-
-interface TwitchChannelChatNotification {
-  id: string;
-  broadcaster_user_id: string;
-  broadcaster_user_login: string;
-  broadcaster_user_name: string;
-  chatter_user_id: string;
-  chatter_user_login: string;
-  chatter_user_name: string;
-  chatter_is_anonymous: boolean;
-  color: string | null;
-  badges: TwitchChannelChatBadge[];
-  system_message: string | null;
-  message_id: string | null;
-  message: {
-    text: string;
-    fragments: TwitchChannelChatMessageFragment[];
-  };
-  notice_type: string;
-}
-
-type Messages = TwitchChannelChatClear | TwitchChannelChatClearUserMessages | TwitchChannelChatMessage | TwitchChannelChatMessageDelete | TwitchChannelSharedChat | TwitchChannelChatNotification;

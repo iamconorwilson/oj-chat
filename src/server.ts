@@ -3,8 +3,9 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { TwitchEventSubClient } from './providers/twitch/routes/eventsub-ws.js';
 import { reconnectClient, disconnectClient } from './providers/twitch/client.js';
-import { EmoteCache } from './handler/cache/emotes.js';
+import { EmoteCache } from './handler/caches/emotes.js';
 import { runWithRetry } from './utils/runWithRetry.js';
+import { EmittedMessage } from './types/emittedMessages.js';
 
 const version = process.env.npm_package_version;
 
@@ -99,8 +100,10 @@ export class Server {
     });
   }
 
-  public emit(payload: { type: string; data?: any }) {
-    this.io.emit(payload.type, payload.data);
+  public emit(payload: EmittedMessage) {
+    const data = 'data' in payload ? payload.data : {};
+    this.io.emit(payload.type, data);
+    console.log(JSON.stringify(payload));
   }
 }
 
@@ -111,7 +114,7 @@ function formatUptime(seconds: number): string {
   return `${hrs}h ${mins}m ${secs}s`;
 }
 
-async function twitchConnect() {
+async function twitchConnect(): Promise<TwitchEventSubClient> {
   const listener = TwitchEventSubClient.getInstance();
   if (!listener) throw new Error('Listener singleton not yet created.');
   if (!listener.isConnected()) {
@@ -121,7 +124,7 @@ async function twitchConnect() {
 
 }
 
-async function emoteConnect() {
+async function emoteConnect(): Promise<EmoteCache> {
   const emoteCache = await EmoteCache.getInstance();
   if (!emoteCache) throw new Error('EmoteCache singleton not yet created.');
   if (!emoteCache.isConnected()) {

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import WebSocket from 'ws';
 import type { TwitchProvider } from '../api.js';
+import type { TwitchEventSubMessage, EventSubSubscription, EventSubSubscriptionResponse, WelcomePayload, NotificationPayload } from '../../../types/twitch/index.js';
 
 export class TwitchEventSubClient extends EventEmitter {
   private static instance: TwitchEventSubClient | null = null; // Singleton instance
