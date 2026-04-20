@@ -2,7 +2,7 @@
   "name": "oj-chat",
   "version": "2.4.0",
   "description": "Simple application that displays onscreen Twitch chat",
-  "main": "app.js",
+  "main": "dist/app.js",
   "type": "module",
   "engines": {
     "node": ">=22.x"

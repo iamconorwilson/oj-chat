@@ -1,5 +1,5 @@
 import { TwitchProvider } from './api.js';
-import { TwitchEventSubClient } from './routes/eventsub-ws.js';
+import { TwitchEventSubWebhook } from './routes/eventsub-webhook.js';
 import { MessageQueue } from '../../queue.js';
 
 
@@ -26,59 +26,46 @@ const eventSubs = [
 export const createClient = async () => {
 
   const client = await TwitchProvider.getInstance();
-
-  const listener = TwitchEventSubClient.getInstance(client);
-
+  const listener = TwitchEventSubWebhook.getInstance(client);
   const queue = MessageQueue.getInstance();
 
+  const me = client.me;
+  if (!me) {
+    console.error('Could not get current user for subscriptions.');
+    return;
+  }
+  const userId = me.id;
 
-
-  listener.on('connect', async () => {
-    const me = client.me;
-    if (!me) {
-      console.error('Could not get current user for subscriptions.');
-      return;
-    }
-    const userId = me.id;
-
-    await Promise.all(eventSubs.map(async (eventSub) => {
-      const { type, version, condition } = eventSub;
-      try {
-        await listener.createSubscription(type, version, condition(userId));
-        listener.on(type, (eventData) => {
-          const event = {
-            provider: 'twitch',
-            type: type,
-            data: eventData
-          };
-          queue.enqueue(event);
-        });
-        console.log(`Subscribed to Twitch event: ${type}`);
-      } catch (error) {
-        console.error(`Subscription to ${type} failed:`, error);
-      }
-    }));
-
-    listener.on('revocation', (revokedSub) => {
-      console.warn(`Subscription revoked: ${revokedSub.type} (Status: ${revokedSub.status})`);
-    });
-  });
-
-  console.log('Twitch EventSub listener ready to connect');
-
-}
-
-export const reconnectClient = async () => {
-  const listener = TwitchEventSubClient.getInstance();
-  listener.connect();
-}
-
-export const disconnectClient = async () => {
-  const listener = TwitchEventSubClient.getInstance();
+  // Clear existing subscriptions to avoid duplicates
   const existingSubs = await listener.getSubscriptions();
   if (existingSubs.length > 0) {
     await Promise.all(existingSubs.map(sub => listener.deleteSubscription(sub.id)));
     console.log(`Cleared ${existingSubs.length} existing Twitch EventSub subscriptions`);
   }
-  listener.disconnect();
+
+  await Promise.all(eventSubs.map(async (eventSub) => {
+    const { type, version, condition } = eventSub;
+    try {
+      await listener.createSubscription(type, version, condition(userId));
+      listener.on(type, (eventData) => {
+        const event = {
+          provider: 'twitch',
+          type: type,
+          data: eventData
+        };
+        queue.enqueue(event);
+      });
+      console.log(`Subscribed to Twitch event: ${type}`);
+    } catch (error) {
+      console.error(`Subscription to ${type} failed:`, error);
+    }
+  }));
+
+  listener.on('revocation', (revokedSub) => {
+    console.warn(`Subscription revoked: ${revokedSub.type} (Status: ${revokedSub.status})`);
+  });
+
+  console.log('Twitch EventSub listener ready');
+
 }
+

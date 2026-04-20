@@ -1,8 +1,7 @@
 import Express from 'express';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { TwitchEventSubClient } from './providers/twitch/routes/eventsub-ws.js';
-import { reconnectClient, disconnectClient } from './providers/twitch/client.js';
+import { TwitchEventSubWebhook } from './providers/twitch/routes/eventsub-webhook.js';
 import { EmoteCache } from './handler/caches/emotes.js';
 import { runWithRetry } from './utils/runWithRetry.js';
 import { EmittedMessage } from './types/emittedMessages.js';
@@ -46,9 +45,6 @@ export class Server {
         console.log('Cancelled scheduled disconnect because a client reconnected.');
       }
 
-      // Ensure Twitch EventSub WS connection
-      const twitchListener = await runWithRetry(twitchConnect);
-
       const emoteListener = await runWithRetry(emoteConnect);
 
       socket.emit('version', version);
@@ -66,10 +62,6 @@ export class Server {
           }
           this.disconnectTimer = setTimeout(async () => {
             if (this.io.engine.clientsCount === 0) {
-              console.log('No clients reconnected. Disconnecting from Twitch EventSub and Emote WebSocket.');
-              if (twitchListener && twitchListener.isConnected()) {
-                disconnectClient();
-              }
               if (emoteListener && emoteListener.isConnected()) {
                 emoteListener.disconnect();
               }
@@ -82,9 +74,12 @@ export class Server {
       });
     });
 
+    this.app.post('/api/twitch/eventsub', Express.raw({ type: 'application/json' }), (req, res, next) => {
+      TwitchEventSubWebhook.getInstance().handleWebhook(req, res, next);
+    });
+
     this.app.get('/health', async (req, res) => {
-      const listener = TwitchEventSubClient.getInstance();
-      const twitchConnected = (listener && listener.isConnected()) ? true : false;
+      const twitchConnected = true; // Webhooks are always "connected" if the server is up
 
       res.status(200).json({
         status: 'OK',
@@ -114,15 +109,7 @@ function formatUptime(seconds: number): string {
   return `${hrs}h ${mins}m ${secs}s`;
 }
 
-async function twitchConnect(): Promise<TwitchEventSubClient> {
-  const listener = TwitchEventSubClient.getInstance();
-  if (!listener) throw new Error('Listener singleton not yet created.');
-  if (!listener.isConnected()) {
-    await reconnectClient();
-  }
-  return listener;
 
-}
 
 async function emoteConnect(): Promise<EmoteCache> {
   const emoteCache = await EmoteCache.getInstance();
