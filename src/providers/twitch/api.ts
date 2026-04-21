@@ -100,8 +100,11 @@ export class TwitchProvider {
     try {
       const fileContent = await fs.readFile(secretsFile, 'utf-8');
       oldUserToken = JSON.parse(fileContent);
-    } catch {
-      throw new Error(`Twitch user token secrets file not found at path: ${secretsFile}`);
+    } catch (error: any) {
+      if (error instanceof SyntaxError) {
+        throw new Error(`Failed to parse JSON in Twitch user token file at path: ${secretsFile}. Error: ${error.message}`);
+      }
+      throw new Error(`Twitch user token secrets file error at path ${secretsFile}: ${error.message || error}`);
     }
     const params = new URLSearchParams({
       client_id: this.config.clientId,
