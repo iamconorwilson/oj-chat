@@ -142,7 +142,7 @@ export class EmoteCache extends EventEmitter {
         }
         if (this.wsConnected || this.isConnecting) return;
 
-        // clean up any previous socket so we don't reuse a CONNECTING instance
+        // Clean up previous socket
         if (this.ws) {
             try {
                 if (this.wsErrorHandler) {

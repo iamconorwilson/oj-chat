@@ -1,17 +1,7 @@
 export interface TwitchEventSubMessage {
   subscription: EventSubSubscription;
-  event?: Record<string, any>;
+  event?: Record<string, string>;
   challenge?: string;
-}
-
-export interface VerificationPayload {
-  challenge: string;
-  subscription: EventSubSubscription;
-}
-
-export interface NotificationPayload {
-  subscription: EventSubSubscription;
-  event: Record<string, any>;
 }
 
 export interface EventSubSubscription {
@@ -20,7 +10,7 @@ export interface EventSubSubscription {
   type: string;
   version: string;
   cost: number;
-  condition: Record<string, any>;
+  condition: Record<string, string>;
   transport: {
     method: 'webhook' | 'websocket';
     callback?: string;

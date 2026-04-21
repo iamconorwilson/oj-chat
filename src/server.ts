@@ -35,7 +35,12 @@ export class Server {
 
     const PORT = process.env.PORT || 3000;
 
-    this.io = new SocketIOServer(this.server);
+    this.io = new SocketIOServer(this.server, {
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+      }
+    });
     this.io.on('connection', async (socket) => {
       console.log(`A user connected. Total clients: ${this.io.engine.clientsCount}`);
 
@@ -55,6 +60,7 @@ export class Server {
 
       socket.on('disconnect', async () => {
         console.log(`A user disconnected. Total clients: ${this.io.engine.clientsCount}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         if (this.io.engine.clientsCount === 0) {
           console.log(`No clients connected. Scheduling disconnect in ${this.DISCONNECT_DELAY / 1000}s.`);
           if (this.disconnectTimer) {

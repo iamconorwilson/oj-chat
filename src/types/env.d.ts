@@ -6,8 +6,9 @@ declare namespace NodeJS {
         SECRETS_DIR: string;
         TWITCH_HELIX_ENDPOINT: string;
         TWITCH_AUTH_ENDPOINT: string;
-        TWITCH_WS_ENDPOINT: string;
         SEVENTV_API_ENDPOINT: string;
         SEVENTV_WS_ENDPOINT: string;
+        TWITCH_EVENTSUB_SECRET: string;
+        TWITCH_EVENTSUB_CALLBACK: string;
     }
 }

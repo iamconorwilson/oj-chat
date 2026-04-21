@@ -1,13 +1,11 @@
 import { EventEmitter } from 'events';
 import crypto from 'crypto';
-import type { Request, Response, NextFunction, RequestHandler } from 'express';
+import type { Request, Response, RequestHandler } from 'express';
 import type { TwitchProvider } from '../api.js';
 import type {
   TwitchEventSubMessage,
   EventSubSubscription,
-  EventSubSubscriptionResponse,
-  NotificationPayload,
-  VerificationPayload
+  EventSubSubscriptionResponse
 } from '../../../types/twitch/index.js';
 
 export class TwitchEventSubWebhook extends EventEmitter {
@@ -32,11 +30,8 @@ export class TwitchEventSubWebhook extends EventEmitter {
     return TwitchEventSubWebhook.instance;
   }
 
-  /**
-   * Middleware to handle Twitch EventSub webhook requests.
-   * This uses express.raw() to get the raw body for signature verification.
-   */
-  public handleWebhook: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
+  // Middleware
+  public handleWebhook: RequestHandler = (req: Request, res: Response) => {
     const signature = req.headers['twitch-eventsub-message-signature'] as string;
     const messageId = req.headers['twitch-eventsub-message-id'] as string;
     const timestamp = req.headers['twitch-eventsub-message-timestamp'] as string;
@@ -59,7 +54,6 @@ export class TwitchEventSubWebhook extends EventEmitter {
 
     const data: TwitchEventSubMessage = JSON.parse(rawBody);
 
-    // Handle different message types based on headers
     const messageType = req.headers['twitch-eventsub-message-type'];
 
     if (messageType === 'webhook_callback_verification') {
@@ -87,9 +81,7 @@ export class TwitchEventSubWebhook extends EventEmitter {
     res.status(204).send();
   };
 
-  /**
-   * Subscribes to a specific EventSub topic.
-   */
+  // Subscribes to a specific EventSub topic
   public async createSubscription(type: string, version: string, condition: object) {
     const callbackUrl = process.env.TWITCH_EVENTSUB_CALLBACK;
     if (!callbackUrl) {
@@ -99,7 +91,7 @@ export class TwitchEventSubWebhook extends EventEmitter {
     try {
       const response = await this.apiClient.makeApiRequest(
         'eventsub/subscriptions',
-        'app', // Webhooks MUST use App Access Tokens for creation
+        'app',
         'POST',
         {
           type,

@@ -3,8 +3,8 @@ import { getUserColor, getPronouns, getSharedChat, getRedemption, parseMessagePa
 import { TwitchProvider } from '../providers/twitch/api.js';
 import { Server } from '../server.js';
 
-import type { TwitchChannelChatMessage, TwitchChannelChatClear, TwitchChannelChatClearUserMessages, TwitchChannelChatMessageDelete, TwitchChannelSharedChat, TwitchChannelChatNotification, TwitchChannelPointsReward } from '../types/twitch/index.js';
-import { EmittedChatClear, EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatMessage, EmittedChatShared, EmittedChatNotification } from '../types/emittedMessages.js';
+import type { TwitchChannelChatMessage, TwitchChannelChatClearUserMessages, TwitchChannelChatMessageDelete, TwitchChannelSharedChat, TwitchChannelChatNotification } from '../types/twitch/index.js';
+import type { EmittedChatClear, EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatMessage, EmittedChatShared, EmittedChatNotification } from '../types/emittedMessages.js';
 
 // --- Handler Functions ---
 
