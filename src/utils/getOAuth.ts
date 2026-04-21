@@ -8,7 +8,9 @@ const port = process.env.PORT || 3000;
 
 const scopes = [
   "user:read:chat",
-  "channel:read:redemptions"
+  "channel:read:redemptions",
+  "user:bot",
+  "channel:bot"
 ]
 
 const clientId = process.env.TWITCH_CLIENT_ID;
@@ -58,7 +60,7 @@ app.get('/callback', async (req, res) => {
       obtainmentTimestamp: Date.now()
     }
 
-    if (!fs.existsSync(secretsDir!)){
+    if (!fs.existsSync(secretsDir!)) {
       console.log(`Creating secrets directory at: ${secretsDir}`);
       fs.mkdirSync(secretsDir!);
     }

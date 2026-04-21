@@ -2,7 +2,6 @@ import type { EmittedChatMessage, EmittedChatNotification, EmittedChatShared } f
 import { fixColor } from "./color.js";
 import { globalData } from "./script.js";
 import { container, incrementTotalMessages, getTotalMessages } from "./dom.js";
-import { TwitchChannelWatchStreakNotice } from "../types/twitch/UserNotice.js";
 
 const buildUserBox = async (data: EmittedChatMessage['data']): Promise<string> => {
   const { badges, user, redemption, sharedChat } = data;
@@ -68,9 +67,10 @@ export const buildSharedChat = async (data: EmittedChatShared['data']): Promise<
 };
 
 export const buildWatchStreak = async (data: EmittedChatNotification['data']): Promise<HTMLElement | undefined> => {
+  if (container.querySelector(`[data-msgId="${data.id}"]`)) return;
   incrementTotalMessages();
 
-  const innerHtml = `<div class="watch-streak-message"><svg width="24" height="24" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5.295 8.05 10 2l3 4 2-3 3.8 5.067a11 11 0 0 1 2.2 6.6A7.333 7.333 0 0 1 13.667 22h-3.405A7.262 7.262 0 0 1 3 14.738c0-2.423.807-4.776 2.295-6.688Zm7.801 1.411 2-3L17.2 9.267a9 9 0 0 1 1.8 5.4 5.334 5.334 0 0 1-4.826 5.31 3 3 0 0 0 .174-3.748L12 13l-2.348 3.229a3 3 0 0 0 .18 3.754A5.263 5.263 0 0 1 5 14.738c0-1.978.66-3.9 1.873-5.46l3.098-3.983 3.125 4.166Z" clip-rule="evenodd"></path></svg><span class="notice-user" style="color: ${fixColor(data.user.color)}">${data.user.displayName}</span> hit a <span class="streak-count" data-streak="${data.streak}">${data.streak} stream</span> Watch Streak!</div>`;
+  const innerHtml = `<div class="watch-streak-message"><svg width="24" height="24" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M5.295 8.05 10 2l3 4 2-3 3.8 5.067a11 11 0 0 1 2.2 6.6A7.333 7.333 0 0 1 13.667 22h-3.405A7.262 7.262 0 0 1 3 14.738c0-2.423.807-4.776 2.295-6.688Zm7.801 1.411 2-3L17.2 9.267a9 9 0 0 1 1.8 5.4 5.334 5.334 0 0 1-4.826 5.31 3 3 0 0 0 .174-3.748L12 13l-2.348 3.229a3 3 0 0 0 .18 3.754A5.263 5.263 0 0 1 5 14.738c0-1.978.66-3.9 1.873-5.46l3.098-3.983 3.125 4.166Z" clip-rule="evenodd"></path></svg><div><span class="notice-user" style="color: ${fixColor(data.user.color)}">${data.user.displayName}</span> hit a <span class="streak-count" data-streak="${data.streak}">${data.streak} stream</span> Watch Streak!</div></div>`;
 
   const html = document.createElement('div');
   html.classList.add('message-row');

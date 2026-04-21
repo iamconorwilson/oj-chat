@@ -1,30 +1,36 @@
 import esbuild from 'esbuild';
-import copyStaticFiles from 'esbuild-copy-static-files';
 
 const watch = process.argv.includes('--watch');
 
 const options = {
-  entryPoints: ['src/client/script.ts'],
+  entryPoints: [
+    { in: 'src/client/script.ts', out: 'js/script' },
+    { in: 'src/client/static/css/styles.css', out: 'css/styles' },
+    { in: 'src/client/static/index.html', out: 'index' },
+    { in: 'src/client/static/chat.html', out: 'chat' }
+  ],
   bundle: true,
-  outfile: 'public/js/script.js',
+  outdir: 'public',
+  loader: {
+    '.html': 'copy'
+  },
   minify: !watch,
   target: 'es2022',
-  plugins: [
-    copyStaticFiles({
-      src: 'src/client/static',
-      dest: 'public',
-      dereference: true,
-      errorOnExist: false,
-      recursive: true,
-    }),
-  ],
+  define: {
+    'window.IS_PRODUCTION': watch ? 'false' : 'true',
+  }
 };
 
 if (watch) {
   try {
     const ctx = await esbuild.context(options);
     await ctx.watch();
+    const { port } = await ctx.serve({
+      servedir: 'public',
+    });
+
     console.log('Watching client and static assets...');
+    console.log(`Development server running on http://localhost:${port}`);
   } catch (err) {
     console.error(err);
     process.exit(1);
@@ -38,3 +44,4 @@ if (watch) {
     process.exit(1);
   }
 }
+

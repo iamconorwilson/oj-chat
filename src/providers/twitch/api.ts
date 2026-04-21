@@ -35,7 +35,6 @@ export class TwitchProvider {
   private userToken: TwitchUserToken | null = null;
   public me: TwitchUser | null = null;
 
-  // API namespaces
   public readonly users: UsersApi;
   public readonly chat: ChatApi;
   public readonly channelPoints: ChannelPointsApi;
@@ -50,7 +49,6 @@ export class TwitchProvider {
     this.channelPoints = new ChannelPointsApi(this);
   }
 
-  // Singleton instance
   public static async getInstance(): Promise<TwitchProvider> {
     if (TwitchProvider.instance) return TwitchProvider.instance;
     if (TwitchProvider.instancePromise) return TwitchProvider.instancePromise;

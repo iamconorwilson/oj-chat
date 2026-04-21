@@ -1,17 +1,16 @@
 import { io } from 'socket.io-client';
 import type { EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatMessage, EmittedChatNotification, EmittedChatShared } from '../types/emittedMessages.js';
-import { onRemoveUserMsg, onRemoveSingleMsg, onRemoveAllMsg, onSharedChatMsg, onMessageEvent, onNotificationEvent } from './dom';
+import { onRemoveUserMsg, onRemoveSingleMsg, onRemoveAllMsg, onSharedChatMsg, onMessageEvent, onNotificationEvent } from './dom.js';
 
 type QueuedMessageData = EmittedChatMessage | EmittedChatNotification;
 
-let eventQueue: QueuedMessageData[] = [];
+const eventQueue: QueuedMessageData[] = [];
 let queueProcessing = false;
 
 const processEventQueue = () => {
     if (queueProcessing || eventQueue.length === 0) return;
     queueProcessing = true;
     scheduleFrame(async () => {
-        // Process multiple items when hidden, or when the queue has backed up, to catch up quickly
         let batchSize = 1;
         if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
             batchSize = 20;
@@ -50,7 +49,8 @@ const scheduleFrame = (cb: () => void) => {
 };
 
 export const wsConnect = () => {
-    const socket = io();
+    const socketUrl = !window.IS_PRODUCTION ? 'http://127.0.0.1:3000' : undefined;
+    const socket = io(socketUrl);
 
     socket.on('connect', () => {
         console.log("Connected");

@@ -1,15 +1,11 @@
-/* =========================
-   Fonts & Base Variables
-   ========================= */
+/* Fonts & Base Variables */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;700;800&display=swap');
 
 :root {
     --background-base: rgba(0, 0, 0, 0.8);
 }
 
-/* =========================
-   Global Styles
-   ========================= */
+/* Global Styles */
 body {
     height: 100vh;
 }
@@ -21,9 +17,7 @@ body {
     overflow: hidden;
 }
 
-/* =========================
-   Layout Containers
-   ========================= */
+/* Layout Containers */
 #container-wrap {
     height: 98%;
     margin-bottom: 0.625rem;
@@ -34,7 +28,7 @@ body {
     overflow: hidden;
 }
 
-#container-wrap.transparent {
+body.transparent #container-wrap {
     background-color: transparent;
 }
 
@@ -57,9 +51,7 @@ body {
     align-items: flex-start;
 }
 
-/* =========================
-   Message Rows
-   ========================= */
+/* Message Rows */
 .message-row {
     flex: 0 0 auto;
     margin-top: 0.625rem;
@@ -77,9 +69,7 @@ body {
     background-color: rgba(144, 70, 255, 0.7);
 }
 
-/* =========================
-   User Box & Badges
-   ========================= */
+/* User Box & Badges */
 .user-box {
     display: flex;
     flex-wrap: wrap;
@@ -134,9 +124,7 @@ span.pronoun {
     padding: 0 0.5rem;
 }
 
-/* =========================
-   Message Content
-   ========================= */
+/* Message Content */
 .user-message {
     display: inline;
     font-size: 1.25rem;
@@ -144,9 +132,7 @@ span.pronoun {
     word-wrap: break-word;
 }
 
-/* =========================
-   Emotes & Cheer
-   ========================= */
+/* Emotes & Cheer */
 .emote {
     height: 1.5rem;
     vertical-align: middle;
@@ -169,9 +155,7 @@ span.pronoun {
 .cheer-5000 { color: #4aadff; }
 .cheer-10000 { color: #ff271e; }
 
-/* =========================
-   Redemption
-   ========================= */
+/* Redemption */
 span.redemption {
     font-weight: normal;
     font-size: 0.875rem;
@@ -204,9 +188,7 @@ span.redemption {
     margin-right: 0.25rem;
 }
 
-/* =========================
-   Shared Chat
-   ========================= */
+/* Shared Chat */
 #container .message-row.shared-chat-message {
     background: linear-gradient(90deg, #9146ff 15%, #f33ca4 100%);
     opacity: 0.9;
@@ -245,10 +227,8 @@ span.redemption {
 .shared-chat-message .profile:last-child {
     margin-right: 0;
 }
-/* =========================
-   Notice Messages
-   ========================= */
 
+/* Notice Messages */
 #container > .notice-message {
     display: flex;
     justify-content: center;
@@ -259,19 +239,23 @@ span.redemption {
     font-weight: bold;
 }
 
+.watch-streak-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .notice-message svg {
     fill: #ffb31a;
     height: 1.25rem;
     width: 1.25rem;
     margin-bottom: 0.125rem;
     vertical-align: middle;
-    margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
-
-/* =========================
-   Utility Classes
-   ========================= */
+/* Utility Classes */
 .action {
     font-style: italic;
 }
@@ -293,9 +277,7 @@ span.redemption {
     left: 0;
 }
 
-/* =========================
-   Animations
-   ========================= */
+/* Animations */
 .fade-out {
     animation: fadeOut 0.5s ease;
     animation-fill-mode: forwards;
@@ -315,4 +297,53 @@ span.redemption {
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
+}
+
+
+/* Horizontal Overrides */
+body.horizontal {
+    margin: 0;
+}
+
+.horizontal #container-wrap {
+    height: 3.75rem;
+    padding: 0.625rem;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.horizontal #container {
+    flex-direction: row;
+    gap: 0.625rem;
+    mask-image: linear-gradient(to right, transparent 1%, black 12.5rem);
+    -webkit-mask-image: linear-gradient(to right, transparent 1%, black 12.5rem);
+}
+
+.horizontal #container > div {
+    flex-direction: row;
+    align-items: center;
+}
+
+.horizontal .message-row {
+    margin-top: 0;
+    gap: 0.5rem;
+    border-radius: 2rem;
+    padding: 0.25rem 1rem;
+}
+
+.horizontal .message-row:has(.shared-chat-source) {
+    padding-left: 0.5625rem;
+}
+
+.horizontal .user-box {
+    flex-wrap: nowrap;
+}
+
+.horizontal .user-message {
+    margin-left: 0;
+}
+
+.horizontal span.redemption {
+    width: auto;
+    padding: 0 0.5rem;
 }

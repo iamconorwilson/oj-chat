@@ -5,7 +5,7 @@ import { EmoteCache } from "./caches/emotes.js";
 import { BadgeCache } from "./caches/badges.js";
 
 import type { TwitchChannelChatMessageFragment } from '../types/twitch/index.js';
-import { ChatBadgeData, ChatChannelPointRedemptionData, SharedChatMessageData } from "../types/emittedMessages.js";
+import type { ChatBadgeData, ChatChannelPointRedemptionData, SharedChatMessageData } from "../types/emittedMessages.js";
 
 // --- Utility Functions ---
 

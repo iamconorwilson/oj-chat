@@ -1,7 +1,6 @@
-import { fixColor } from './color';
-import { globalData } from './script';
-import { EmittedChatMessage, EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatShared, EmittedChatNotification } from '../types/emittedMessages';
-import { buildNewMessage, buildSharedChat, buildWatchStreak } from './builders';
+import { globalData } from './script.js';
+import { buildNewMessage, buildSharedChat, buildWatchStreak } from './builders.js';
+import type { EmittedChatMessage, EmittedChatClearUserMessages, EmittedChatDelete, EmittedChatShared, EmittedChatNotification } from '../types/emittedMessages.js';
 
 export const containerWrap = document.getElementById("container-wrap") as HTMLElement;
 export const container = document.getElementById("container") as HTMLElement;
@@ -72,11 +71,14 @@ const removeOldMessages = () => {
     }
 };
 
+
+
+
 if (typeof window !== 'undefined') {
-    (window as any).onMessageEvent = onMessageEvent;
-    (window as any).onNotificationEvent = onNotificationEvent;
-    (window as any).onRemoveUserMsg = onRemoveUserMsg;
-    (window as any).onRemoveSingleMsg = onRemoveSingleMsg;
-    (window as any).onRemoveAllMsg = onRemoveAllMsg;
-    (window as any).onSharedChatMsg = onSharedChatMsg;
+    window.onMessageEvent = onMessageEvent;
+    window.onNotificationEvent = onNotificationEvent;
+    window.onRemoveUserMsg = onRemoveUserMsg;
+    window.onRemoveSingleMsg = onRemoveSingleMsg;
+    window.onRemoveAllMsg = onRemoveAllMsg;
+    window.onSharedChatMsg = onSharedChatMsg;
 }

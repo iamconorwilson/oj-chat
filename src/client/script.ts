@@ -1,5 +1,4 @@
-import { wsConnect } from './socket';
-import { containerWrap } from './dom';
+import { wsConnect } from './socket.js';
 
 export const globalData = {
     ignoredUsers: ['robo_oj', 'sockubot', 'nightbot', 'streamlabs', 'streamelements', 'tangiabot'],
@@ -8,17 +7,34 @@ export const globalData = {
 };
 
 const init = () => {
-    const urlParams = new URLSearchParams(window.location.search);
+    if (!window.IS_PRODUCTION) {
+        new EventSource('/esbuild').addEventListener('change', (e) => {
+            const { added, removed, updated } = JSON.parse(e.data);
+            if (!added.length && !removed.length && updated.length === 1 && updated[0].endsWith('.css')) {
+                for (const link of document.getElementsByTagName("link")) {
+                    const url = new URL(link.href);
+                    if (url.host === location.host && url.pathname === updated[0]) {
+                        const next = link.cloneNode() as HTMLLinkElement;
+                        next.href = updated[0] + '?' + Math.random().toString(36).slice(2);
+                        next.onload = () => link.remove();
+                        link.parentNode?.insertBefore(next, link.nextSibling);
+                        return;
+                    }
+                }
+            }
+            location.reload();
+        });
+    }
+
+    const urlParams = new window.URLSearchParams(window.location.search);
+
 
     if (urlParams.has('horizontal')) {
-        const css = document.createElement('link');
-        css.rel = 'stylesheet';
-        css.href = '/css/horizontal.css';
-        document.head.appendChild(css);
+        document.body.classList.add('horizontal');
     }
 
     if (urlParams.has('transparent')) {
-        containerWrap.classList.add('transparent');
+        document.body.classList.add('transparent');
     }
 
     if (urlParams.has('large')) {
@@ -28,5 +44,4 @@ const init = () => {
     wsConnect();
 };
 
-// INIT
 init();

@@ -1,8 +1,8 @@
 {
   "name": "oj-chat",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Simple application that displays onscreen Twitch chat",
-  "main": "app.js",
+  "main": "dist/app.js",
   "type": "module",
   "engines": {
     "node": ">=22.x"
@@ -15,7 +15,7 @@
     "build": "npm run build:server && npm run build:client",
     "dev:server": "tsc-watch --onSuccess \"cross-env NODE_ENV=development node ./dist/app.js\"",
     "dev:client": "node esbuild.config.js --watch",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev": "node ./dist/utils/runDev.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },
@@ -36,11 +36,9 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "esbuild": "^0.28.0",
-    "esbuild-copy-static-files": "^0.1.0",
     "eslint": "^9.39.2",
     "globals": "^16.5.0",
     "rimraf": "^6.1.2",
-    "shx": "^0.4.0",
     "tsc-watch": "^7.2.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.49.0"

@@ -8,10 +8,11 @@ export const fixColor = (hex: string): string => {
         return p;
     };
 
-    let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
 
-    let rN = r / 255, gN = g / 255, bN = b / 255, max = Math.max(rN, gN, bN), min = Math.min(rN, gN, bN);
-    let h: number = 0, s: number = 0, l = (max + min) / 2, d = max - min;
+    const rN = r / 255, gN = g / 255, bN = b / 255, max = Math.max(rN, gN, bN), min = Math.min(rN, gN, bN);
+    let h: number = 0, s: number = 0;
+    const l = (max + min) / 2, d = max - min;
 
     if (d === 0) h = s = 0;
     else {
@@ -23,8 +24,8 @@ export const fixColor = (hex: string): string => {
     let low = l, high = 1, mid;
     for (let i = 0; i < 14; i++) {
         mid = (low + high) / 2;
-        let q = mid < 0.5 ? mid * (1 + s) : mid + s - mid * s, p = 2 * mid - q;
-        let lum = 0.2126 * toLin(hue2rgb(p, q, h + 1 / 3) * 255) +
+        const q = mid < 0.5 ? mid * (1 + s) : mid + s - mid * s, p = 2 * mid - q;
+        const lum = 0.2126 * toLin(hue2rgb(p, q, h + 1 / 3) * 255) +
             0.7152 * toLin(hue2rgb(p, q, h) * 255) +
             0.0722 * toLin(hue2rgb(p, q, h - 1 / 3) * 255);
 
