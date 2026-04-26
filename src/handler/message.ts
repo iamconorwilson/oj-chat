@@ -166,7 +166,7 @@ export const messageHandler = async () => {
         case 'channel.chat.message_delete':
           chatMessageDeleteHandler(message.data as TwitchChannelChatMessageDelete);
           break;
-        case 'channel.chat.shared_chat.begin':
+        case 'channel.shared_chat.begin':
           chatSharedChatHandler(message.data as TwitchChannelSharedChat);
           break;
         case 'channel.chat.notification':
