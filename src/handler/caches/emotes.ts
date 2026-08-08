@@ -82,9 +82,17 @@ export class EmoteCache extends EventEmitter {
             return [];
         }
         const data = await response.json();
-        console.log(data);
-        this.emoteSetId = data.emote_sets[0].id || '';
-        return data.emote_sets[0].emotes.map((emote: { id: string, name: string }) => ({
+        const emoteSets = data.user?.emote_sets || data.emote_sets || [];
+        const primaryEmoteSet = emoteSets[0];
+
+        if (!primaryEmoteSet) {
+            console.warn(`No 7TV emote set found for channel ID ${channelId}`);
+            this.emoteSetId = '';
+            return [];
+        }
+
+        this.emoteSetId = primaryEmoteSet.id || '';
+        return (primaryEmoteSet.emotes || []).map((emote: { id: string, name: string }) => ({
             id: emote.id,
             name: emote.name,
             source: '7TV'
