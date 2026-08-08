@@ -82,8 +82,9 @@ export class EmoteCache extends EventEmitter {
             return [];
         }
         const data = await response.json();
+        console.log(data);
         this.emoteSetId = data.emote_sets[0].id;
-        return data.emote_set.emotes.map((emote: { id: string, name: string }) => ({
+        return data.emote_sets[0].emotes.map((emote: { id: string, name: string }) => ({
             id: emote.id,
             name: emote.name,
             source: '7TV'
